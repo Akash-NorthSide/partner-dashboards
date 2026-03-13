@@ -101,25 +101,26 @@
         <div id="summary" class="tab-content active">
             <div class="kpi-grid">
                 <div class="kpi-card"><div class="kpi-label">Total Spend</div><div class="kpi-value" id="s-spend">-</div></div>
-                <div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value" id="s-revenue">-</div></div>
-                <div class="kpi-card"><div class="kpi-label">Overall ROAS</div><div class="kpi-value" id="s-roas">-</div></div>
+                <div class="kpi-card"><div class="kpi-label">Total Ad-Revenue</div><div class="kpi-value" id="s-revenue">-</div></div>
+                <div class="kpi-card"><div class="kpi-label">Overall Ad-ROAS</div><div class="kpi-value" id="s-roas">-</div></div>
                 <div class="kpi-card"><div class="kpi-label">Total Impressions</div><div class="kpi-value" id="s-imp">-</div></div>
             </div>
             <div class="charts-row">
                 <div class="chart-container"><h3>Monthly Spend by Platform</h3><canvas id="sSpendChart"></canvas></div>
-                <div class="chart-container"><h3>Monthly Revenue by Platform</h3><canvas id="sRevenueChart"></canvas></div>
+                <div class="chart-container"><h3>Monthly Ad-Revenue by Platform</h3><canvas id="sRevenueChart"></canvas></div>
             </div>
             <div class="table-container"><h3>Platform Overview</h3>
-                <table id="sPlatTable"><thead><tr><th>Platform</th><th>Spend</th><th>Revenue</th><th>Impressions</th><th>ROAS</th></tr></thead><tbody></tbody></table>
+                <table id="sPlatTable"><thead><tr><th>Platform</th><th>Spend</th><th>Ad-Revenue</th><th>Impressions</th><th>Ad-ROAS</th></tr></thead><tbody></tbody></table>
             </div>
             <div class="table-container"><h3>Top Performing Keywords</h3>
-                <table id="sKwTable"><thead><tr><th>Keyword</th><th>Platforms</th><th>Spend</th><th>Revenue</th><th>ROAS</th></tr></thead><tbody></tbody></table>
+                <table id="sKwTable"><thead><tr><th>Keyword</th><th>Platforms</th><th>Spend</th><th>Ad-Revenue</th><th>Ad-ROAS</th></tr></thead><tbody></tbody></table>
             </div>
             <div class="tab-remarks"><h4>Data Notes</h4><ul>
                 <li>Data includes advertising performance across Amazon, Blinkit, Instamart (Swiggy), and Zepto platforms.</li>
                 <li>Amazon data covers 10 Dec 2025 – 8 Mar 2026 (~89 days). Blinkit, Instamart, and Zepto cover 1 Dec 2025 – 28 Feb 2026.</li>
-                <li>Revenue metric: Amazon = "14 Day Total Sales"; Blinkit = Total Revenue; Instamart = Total GMV; Zepto = Revenue.</li>
-                <li>ROAS is calculated as weighted average (Total Revenue ÷ Total Spend).</li>
+                <li>Ad-Revenue metric: Amazon = "14 Day Total Sales"; Blinkit = Total Revenue; Instamart = Total GMV; Zepto = Revenue.</li>
+                <li>Ad-ROAS is calculated as weighted average (Total Ad-Revenue ÷ Total Spend).</li>
+                <li><strong>Note:</strong> All metrics (Ad-Revenue, Ad-ROAS, Ad-Orders, Ad-Units) are ad-attributed values, not overall business metrics.</li>
             </ul></div>
         </div>
 
@@ -127,8 +128,8 @@
         <div id="amazon" class="tab-content">
             <div class="kpi-grid">
                 <div class="kpi-card"><div class="kpi-label">Total Spend</div><div class="kpi-value" id="a-spend">-</div></div>
-                <div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value" id="a-revenue">-</div></div>
-                <div class="kpi-card"><div class="kpi-label">ROAS</div><div class="kpi-value" id="a-roas">-</div></div>
+                <div class="kpi-card"><div class="kpi-label">Total Ad-Revenue</div><div class="kpi-value" id="a-revenue">-</div></div>
+                <div class="kpi-card"><div class="kpi-label">Ad-ROAS</div><div class="kpi-value" id="a-roas">-</div></div>
                 <div class="kpi-card"><div class="kpi-label">Impressions</div><div class="kpi-value" id="a-imp">-</div></div>
             </div>
             <div class="charts-row">
@@ -136,23 +137,24 @@
                 <div class="chart-container"><h3>Spend by Ad-Type</h3><canvas id="aSpendPie"></canvas></div>
             </div>
             <div class="table-container"><h3>Ad-Type Summary</h3>
-                <table id="aAdTypeTable"><thead><tr><th>Ad-Type</th><th>Spends</th><th>Impressions</th><th>Clicks</th><th>Orders</th><th>NTB Orders</th><th>Units</th><th>Revenue</th><th>ROAS</th></tr></thead><tbody></tbody></table>
+                <table id="aAdTypeTable"><thead><tr><th>Ad-Type</th><th>Spends</th><th>Impressions</th><th>Clicks</th><th>Ad-Orders</th><th>NTB Orders</th><th>Ad-Units</th><th>Ad-Revenue</th><th>Ad-ROAS</th></tr></thead><tbody></tbody></table>
             </div>
             <div class="table-container"><h3>Targeting-Type Detail</h3>
-                <table id="aTargTable"><thead><tr><th>Ad-Type / Targeting Type</th><th>Spends</th><th>Impressions</th><th>Clicks</th><th>Orders</th><th>NTB Orders</th><th>Units</th><th>Revenue</th><th>ROAS</th></tr></thead><tbody></tbody></table>
+                <table id="aTargTable"><thead><tr><th>Ad-Type / Targeting Type</th><th>Spends</th><th>Impressions</th><th>Clicks</th><th>Ad-Orders</th><th>NTB Orders</th><th>Ad-Units</th><th>Ad-Revenue</th><th>Ad-ROAS</th></tr></thead><tbody></tbody></table>
             </div>
             <div class="table-container top-kw-container"><h3>Top 10 Keywords (by Spend)</h3>
-                <table id="aTopKwTable"><thead><tr><th>#</th><th>Keyword</th><th>Spends</th><th>Impressions</th><th>Clicks</th><th>CPM</th><th>Revenue</th><th>ROAS</th></tr></thead><tbody></tbody></table>
+                <table id="aTopKwTable"><thead><tr><th>#</th><th>Keyword</th><th>Spends</th><th>Impressions</th><th>Clicks</th><th>CPM</th><th>Ad-Revenue</th><th>Ad-ROAS</th></tr></thead><tbody></tbody></table>
             </div>
             <div class="table-container"><h3>Keyword Performance <span class="kw-count-badge" id="aKwCount"></span></h3>
                 <div class="kw-search-wrap"><label>Search:</label><input type="text" class="kw-search-box" id="aKwSearch" placeholder="Type to filter keywords..." oninput="filterKwTable('aKwTable', this.value)"></div>
-                <div class="kw-scroll-wrap"><table id="aKwTable"><thead><tr><th>Keyword</th><th>Spends</th><th>Impressions</th><th>Clicks</th><th>CPM</th><th>Orders</th><th>NTB Orders</th><th>Units</th><th>Revenue</th><th>ROAS</th></tr></thead><tbody></tbody></table></div>
+                <div class="kw-scroll-wrap"><table id="aKwTable"><thead><tr><th>Keyword</th><th>Spends</th><th>Impressions</th><th>Clicks</th><th>CPM</th><th>Ad-Orders</th><th>NTB Orders</th><th>Ad-Units</th><th>Ad-Revenue</th><th>Ad-ROAS</th></tr></thead><tbody></tbody></table></div>
             </div>
             <div class="tab-remarks"><h4>Data Notes</h4><ul>
                 <li>Data period: 10 Dec 2025 – 8 Mar 2026 (~89 days).</li>
                 <li>Includes 3 ad types: Sponsored Products (SP), Sponsored Display (SD), Sponsored Brands (SB).</li>
-                <li>Revenue metric is "14 Day Total Sales (₹)" — attribution window.</li>
+                <li>Ad-Revenue metric is "14 Day Total Sales (₹)" — attribution window.</li>
                 <li>Keyword table shows keyword-targeted entries only.</li>
+                <li><strong>Note:</strong> All metrics (Ad-Revenue, Ad-ROAS, Ad-Orders, Ad-Units) are ad-attributed values, not overall business metrics.</li>
             </ul></div>
         </div>
 
@@ -160,8 +162,8 @@
         <div id="blinkit" class="tab-content">
             <div class="kpi-grid">
                 <div class="kpi-card"><div class="kpi-label">Spend</div><div class="kpi-value" id="b-spend">-</div></div>
-                <div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value" id="b-revenue">-</div></div>
-                <div class="kpi-card"><div class="kpi-label">ROAS</div><div class="kpi-value" id="b-roas">-</div></div>
+                <div class="kpi-card"><div class="kpi-label">Total Ad-Revenue</div><div class="kpi-value" id="b-revenue">-</div></div>
+                <div class="kpi-card"><div class="kpi-label">Ad-ROAS</div><div class="kpi-value" id="b-roas">-</div></div>
                 <div class="kpi-card"><div class="kpi-label">Impressions</div><div class="kpi-value" id="b-imp">-</div></div>
             </div>
             <div class="charts-row">
@@ -169,23 +171,24 @@
                 <div class="chart-container"><h3>Spend by Ad-Type</h3><canvas id="bSpendPie"></canvas></div>
             </div>
             <div class="table-container"><h3>Blinkit Ads-Type Summary</h3>
-                <table id="bAdTypeTable"><thead><tr><th>Ad-Type</th><th>Spend</th><th>Impressions</th><th>New Users</th><th>Total ATC</th><th>Total Units</th><th>Total Revenue</th><th>CPM</th><th>ROAS</th></tr></thead><tbody></tbody></table>
+                <table id="bAdTypeTable"><thead><tr><th>Ad-Type</th><th>Spend</th><th>Impressions</th><th>New Users</th><th>Total ATC</th><th>Total Ad-Units</th><th>Total Ad-Revenue</th><th>CPM</th><th>Ad-ROAS</th></tr></thead><tbody></tbody></table>
             </div>
             <div class="table-container"><h3>Blinkit Ads Targeted Placements</h3>
-                <table id="bTargTable"><thead><tr><th>Ad-Type / Targeting Type</th><th>Spend</th><th>Impressions</th><th>New Users</th><th>Total ATC</th><th>Total Units</th><th>Total Revenue</th><th>CPM</th><th>ROAS</th></tr></thead><tbody></tbody></table>
+                <table id="bTargTable"><thead><tr><th>Ad-Type / Targeting Type</th><th>Spend</th><th>Impressions</th><th>New Users</th><th>Total ATC</th><th>Total Ad-Units</th><th>Total Ad-Revenue</th><th>CPM</th><th>Ad-ROAS</th></tr></thead><tbody></tbody></table>
             </div>
             <div class="table-container top-kw-container"><h3>Top 10 Keywords (by Spend)</h3>
-                <table id="bTopKwTable"><thead><tr><th>#</th><th>Keyword</th><th>Spend</th><th>Impressions</th><th>Total ATC</th><th>Total Revenue</th><th>ROAS</th></tr></thead><tbody></tbody></table>
+                <table id="bTopKwTable"><thead><tr><th>#</th><th>Keyword</th><th>Spend</th><th>Impressions</th><th>Total ATC</th><th>Total Ad-Revenue</th><th>Ad-ROAS</th></tr></thead><tbody></tbody></table>
             </div>
             <div class="table-container"><h3>Blinkit Ads Targeted Keywords <span class="kw-count-badge" id="bKwCount"></span></h3>
                 <div class="kw-search-wrap"><label>Search:</label><input type="text" class="kw-search-box" id="bKwSearch" placeholder="Type to filter keywords..." oninput="filterKwTable('bKwTable', this.value)"></div>
-                <div class="kw-scroll-wrap"><table id="bKwTable"><thead><tr><th>Targeting Value</th><th>Spend</th><th>Impressions</th><th>CPM</th><th>New Users</th><th>Total ATC</th><th>Total Units</th><th>Total Revenue</th><th>ROAS</th></tr></thead><tbody></tbody></table></div>
+                <div class="kw-scroll-wrap"><table id="bKwTable"><thead><tr><th>Targeting Value</th><th>Spend</th><th>Impressions</th><th>CPM</th><th>New Users</th><th>Total ATC</th><th>Total Ad-Units</th><th>Total Ad-Revenue</th><th>Ad-ROAS</th></tr></thead><tbody></tbody></table></div>
             </div>
             <div class="tab-remarks"><h4>Data Notes</h4><ul>
                 <li>Data period: 1 Dec 2025 – 28 Feb 2026.</li>
                 <li>Includes 2 ad types: Product Listing Ads (PLA) and Spotlight Banner Ads.</li>
-                <li>Metrics: Total ATC, Total Units, Total Revenue (sum of direct and indirect attribution).</li>
-                <li>ROAS = Total Revenue ÷ Spend.</li>
+                <li>Metrics: Total ATC, Total Ad-Units, Total Ad-Revenue (sum of direct and indirect attribution).</li>
+                <li>Ad-ROAS = Total Ad-Revenue ÷ Spend.</li>
+                <li><strong>Note:</strong> All metrics (Ad-Revenue, Ad-ROAS, Ad-Units) are ad-attributed values, not overall business metrics.</li>
             </ul></div>
         </div>
 
@@ -193,8 +196,8 @@
         <div id="zepto" class="tab-content">
             <div class="kpi-grid">
                 <div class="kpi-card"><div class="kpi-label">Total Spend</div><div class="kpi-value" id="z-spend">-</div></div>
-                <div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value" id="z-revenue">-</div></div>
-                <div class="kpi-card"><div class="kpi-label">ROAS</div><div class="kpi-value" id="z-roas">-</div></div>
+                <div class="kpi-card"><div class="kpi-label">Total Ad-Revenue</div><div class="kpi-value" id="z-revenue">-</div></div>
+                <div class="kpi-card"><div class="kpi-label">Ad-ROAS</div><div class="kpi-value" id="z-roas">-</div></div>
                 <div class="kpi-card"><div class="kpi-label">Impressions</div><div class="kpi-value" id="z-imp">-</div></div>
             </div>
             <div class="charts-row">
@@ -202,25 +205,26 @@
                 <div class="chart-container"><h3>Spend by Campaign Type</h3><canvas id="zSpendPie"></canvas></div>
             </div>
             <div class="table-container"><h3>Zepto Ads Performance (Campaign Type)</h3>
-                <table id="zCampTable"><thead><tr><th>Campaign Type</th><th>Impressions</th><th>Spend</th><th>Clicks</th><th>ATC</th><th>Orders</th><th>Revenue</th><th>ROAS</th></tr></thead><tbody></tbody></table>
+                <table id="zCampTable"><thead><tr><th>Campaign Type</th><th>Impressions</th><th>Spend</th><th>Clicks</th><th>ATC</th><th>Ad-Orders</th><th>Ad-Revenue</th><th>Ad-ROAS</th></tr></thead><tbody></tbody></table>
             </div>
             <div class="table-container"><h3>Zepto Flavor Performance</h3>
-                <table id="zFlavorTable"><thead><tr><th>Flavor</th><th>Spend</th><th>Impressions</th><th>Clicks</th><th>ATC</th><th>Orders</th><th>Revenue</th><th>ROAS</th><th>CPM</th></tr></thead><tbody></tbody></table>
+                <table id="zFlavorTable"><thead><tr><th>Flavor</th><th>Spend</th><th>Impressions</th><th>Clicks</th><th>ATC</th><th>Ad-Orders</th><th>Ad-Revenue</th><th>Ad-ROAS</th><th>CPM</th></tr></thead><tbody></tbody></table>
             </div>
             <div class="table-container"><h3>Zepto Ads Performance (Product Level)</h3>
-                <table id="zProdTable"><thead><tr><th>Item Name</th><th>Impressions</th><th>Spend</th><th>Clicks</th><th>ATC</th><th>Orders</th><th>Revenue</th><th>ROAS</th></tr></thead><tbody></tbody></table>
+                <table id="zProdTable"><thead><tr><th>Item Name</th><th>Impressions</th><th>Spend</th><th>Clicks</th><th>ATC</th><th>Ad-Orders</th><th>Ad-Revenue</th><th>Ad-ROAS</th></tr></thead><tbody></tbody></table>
             </div>
             <div class="table-container top-kw-container"><h3>Top 10 Keywords (by Spend)</h3>
-                <table id="zTopKwTable"><thead><tr><th>#</th><th>Keyword</th><th>Spend</th><th>Impressions</th><th>Clicks</th><th>CPM</th><th>Revenue</th><th>ROAS</th></tr></thead><tbody></tbody></table>
+                <table id="zTopKwTable"><thead><tr><th>#</th><th>Keyword</th><th>Spend</th><th>Impressions</th><th>Clicks</th><th>CPM</th><th>Ad-Revenue</th><th>Ad-ROAS</th></tr></thead><tbody></tbody></table>
             </div>
             <div class="table-container"><h3>Zepto Ads Performance (Keyword Level) <span class="kw-count-badge" id="zKwCount"></span></h3>
                 <div class="kw-search-wrap"><label>Search:</label><input type="text" class="kw-search-box" id="zKwSearch" placeholder="Type to filter keywords..." oninput="filterKwTable('zKwTable', this.value)"></div>
-                <div class="kw-scroll-wrap"><table id="zKwTable"><thead><tr><th>Keyword</th><th>Impressions</th><th>Spend</th><th>Clicks</th><th>CPM</th><th>ATC</th><th>Orders</th><th>Revenue</th><th>ROAS</th></tr></thead><tbody></tbody></table></div>
+                <div class="kw-scroll-wrap"><table id="zKwTable"><thead><tr><th>Keyword</th><th>Impressions</th><th>Spend</th><th>Clicks</th><th>CPM</th><th>ATC</th><th>Ad-Orders</th><th>Ad-Revenue</th><th>Ad-ROAS</th></tr></thead><tbody></tbody></table></div>
             </div>
             <div class="tab-remarks"><h4>Data Notes</h4><ul>
                 <li>Data period: 1 Dec 2025 – 28 Feb 2026.</li>
                 <li>Includes 3 campaign types: Sponsored Product, Sponsored Brand, Sponsored Display.</li>
                 <li>Flavor table aggregates product-level data by flavor extracted from item names.</li>
+                <li><strong>Note:</strong> All metrics (Ad-Revenue, Ad-ROAS, Ad-Orders) are ad-attributed values, not overall business metrics.</li>
             </ul></div>
         </div>
 
@@ -252,23 +256,23 @@
             </div>
             <div class="tab-remarks"><h4>Data Notes</h4><ul>
                 <li>Data period: 1 Dec 2025 – 28 Feb 2026.</li>
-                <li>Revenue = Total GMV (Gross Merchandise Value).</li>
-                <li>Flavor table aggregates product-level data by flavor extracted from product names.</li>
+                <li>Ad-Revenue = Total GMV (Gross Merchandise Value).</li>
+                <li>All metrics (Ad-ROAS, GMV, Conversions) are ad-attributed values, not overall business metrics.</li>
             <li><strong>Note:</strong> Pack of 6 SKUs (Salt Pepper Pack 6, Chilli Garlic Pack 6, Sesame Soy Pack 6) are actively running ads but their sales performance is not currently reflected in the GMV reporting data. This is likely a reporting/attribution gap rather than actual zero sales.</li></ul></div>
         </div>
 
         <!-- PLATFORM COMPARISON TAB -->
         <div id="comparison" class="tab-content">
             <div class="table-container"><h3>Month-over-Month KPI Comparison</h3>
-                <p style="font-size:12px;color:var(--ns-grey);margin-bottom:12px;">All major KPIs compared across platforms by month. ROAS = Revenue ÷ Spend (weighted).</p>
+                <p style="font-size:12px;color:var(--ns-grey);margin-bottom:12px;">All major KPIs compared across platforms by month. Ad-ROAS = Ad-Revenue ÷ Spend (weighted).</p>
                 <table id="compTable">
                     <thead>
                         <tr>
                             <th>Month</th>
                             <th>Platform</th>
                             <th>Spend</th>
-                            <th>Revenue</th>
-                            <th>ROAS</th>
+                            <th>Ad-Revenue</th>
+                            <th>Ad-ROAS</th>
                             <th>Impressions</th>
                             <th>Clicks</th>
                             <th>CPM</th>
@@ -278,13 +282,14 @@
                 </table>
             </div>
             <div class="charts-row">
-                <div class="chart-container"><h3>Monthly ROAS by Platform</h3><canvas id="compRoasChart" style="max-height:300px;"></canvas></div>
+                <div class="chart-container"><h3>Monthly Ad-ROAS by Platform</h3><canvas id="compRoasChart" style="max-height:300px;"></canvas></div>
                 <div class="chart-container"><h3>Monthly CPM by Platform</h3><canvas id="compCpmChart" style="max-height:300px;"></canvas></div>
             </div>
             <div class="tab-remarks"><h4>Data Notes</h4><ul>
                 <li>Comparison uses same KPI definitions as individual platform tabs.</li>
-                <li>Revenue: Amazon = 14-Day Total Sales, Blinkit = Total Revenue, Instamart = GMV, Zepto = Revenue.</li>
+                <li>Ad-Revenue: Amazon = 14-Day Total Sales, Blinkit = Total Ad-Revenue, Instamart = GMV, Zepto = Ad-Revenue.</li>
                 <li>CPM = Cost per Mille (Spend ÷ Impressions × 1000).</li>
+                <li><strong>Note:</strong> All metrics (Ad-Revenue, Ad-ROAS) are ad-attributed values, not overall business metrics.</li>
             </ul></div>
         </div>
     </div>
@@ -460,7 +465,7 @@
                 backgroundColor: pColors[i], borderWidth:0, borderRadius:2
             }));
             makeStackedBar('sSpendChart', activeMonths, spendDS, 'Monthly Spend by Platform');
-            makeStackedBar('sRevenueChart', activeMonths, revDS, 'Monthly Revenue by Platform');
+            makeStackedBar('sRevenueChart', activeMonths, revDS, 'Monthly Ad-Revenue by Platform');
 
             let tRows = plats.map(p => {
                 const d = platData[p];
