@@ -1,0 +1,2049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NorthSide Sample Ads Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --ns-teal: #1CBFBB;
+            --ns-teal-light: #52BFBC;
+            --ns-teal-dark: #369290;
+            --ns-black: #020202;
+            --ns-white: #FFFFFF;
+            --ns-grey: #7D7D7D;
+            --ns-grey-light: #F2F2F2;
+            --ns-grey-warm: #E6E4E4;
+            --ns-green: #27AE60;
+            --ns-amber: #F2994A;
+            --ns-red: #EB5757;
+            --amazon: #FF9900; --amazon-light: #FFB84D; --amazon-dark: #CC7A00;
+            --blinkit: #F5C518; --blinkit-light: #F7D54E; --blinkit-dark: #D4A90A;
+            --zepto: #6C2DC7; --zepto-light: #8B5CD6; --zepto-dark: #5220A0;
+            --instamart: #FC8019; --instamart-light: #FFA04D; --instamart-dark: #D96A0B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Calibri', sans-serif;
+            background-color: var(--ns-grey-light);
+            color: var(--ns-black);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header { background:var(--ns-black); color:var(--ns-white); padding:20px 32px; display:flex; align-items:center; gap:20px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+        .header img { height:50px; width:auto; }
+        .header h1 { font-size:24px; font-weight:600; }
+        .header .sub { font-size:12px; color:var(--ns-grey); margin-top:4px; }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            background-color: var(--ns-white);
+            border-bottom: 2px solid var(--ns-grey-light);
+            display: flex;
+            padding: 0 32px;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 16px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ns-grey);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-button:hover {
+            color: var(--ns-teal);
+        }
+
+        .tab-button.active {
+            color: var(--ns-teal);
+            border-bottom-color: var(--ns-teal);
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            background-color: var(--ns-white);
+            padding: 16px 32px;
+            border-bottom: 1px solid var(--ns-grey-light);
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ns-black);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid var(--ns-grey-warm);
+            border-radius: 4px;
+            font-size: 13px;
+            background-color: var(--ns-white);
+            cursor: pointer;
+            color: var(--ns-black);
+            min-width: 140px;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--ns-teal);
+            box-shadow: 0 0 0 3px rgba(28, 191, 187, 0.1);
+        }
+
+        .reset-button {
+            padding: 8px 16px;
+            background-color: var(--ns-teal);
+            color: var(--ns-white);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-left: auto;
+        }
+
+        .reset-button:hover {
+            background-color: var(--ns-teal-dark);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        @media (max-width:900px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width:500px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+        .kpi-card {
+            background: var(--ns-white);
+            border-radius: 8px;
+            padding: 18px 20px;
+            border-left: 4px solid var(--ns-teal);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            transition: box-shadow 0.3s, transform 0.2s;
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ns-grey);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--ns-black);
+            margin-bottom: 8px;
+        }
+
+        .kpi-delta {
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .kpi-delta.positive {
+            color: var(--ns-green);
+        }
+
+        .kpi-delta.negative {
+            color: var(--ns-red);
+        }
+
+        /* Charts Row */
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .chart-card {
+            background-color: var(--ns-white);
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ns-black);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Tables */
+        .table-card {
+            background-color: var(--ns-white);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .table-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ns-black);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .export-button {
+            padding: 8px 12px;
+            background-color: var(--ns-grey-light);
+            color: var(--ns-black);
+            border: 1px solid var(--ns-grey-warm);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .export-button:hover {
+            background-color: var(--ns-grey-warm);
+        }
+
+        .search-box {
+            margin-bottom: 16px;
+        }
+
+        .search-box input {
+            padding: 10px 12px;
+            border: 1px solid var(--ns-grey-warm);
+            border-radius: 4px;
+            width: 100%;
+            max-width: 300px;
+            font-size: 13px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--ns-teal);
+            box-shadow: 0 0 0 3px rgba(28, 191, 187, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background-color: var(--ns-grey-light);
+            border-bottom: 1px solid var(--ns-grey-warm);
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 700;
+            color: var(--ns-black);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-size: 12px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--ns-grey-light);
+        }
+
+        tbody tr:hover {
+            background-color: var(--ns-grey-light);
+        }
+
+        tbody tr.total-row {
+            background-color: var(--ns-grey-warm);
+            font-weight: 700;
+            border-top: 2px solid var(--ns-grey);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--ns-white);
+            border-top: 1px solid var(--ns-grey-light);
+            padding: 24px 32px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--ns-grey);
+            margin-top: 48px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .filter-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .reset-button {
+                margin-left: 0;
+                margin-top: 8px;
+                width: 100%;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                padding: 16px 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .container {
+                padding: 16px;
+            }
+
+            .tab-navigation {
+                padding: 0 16px;
+                overflow-x: auto;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    
+        .tab-button[data-platform="amazon"].active { color: var(--amazon); border-bottom-color: var(--amazon); }
+        .tab-button[data-platform="blinkit"].active { color: var(--blinkit-dark); border-bottom-color: var(--blinkit); }
+        .tab-button[data-platform="zepto"].active { color: var(--zepto); border-bottom-color: var(--zepto); }
+        .tab-button[data-platform="instamart"].active { color: var(--instamart); border-bottom-color: var(--instamart); }
+        .tab-button[data-platform="amazon"]:hover { color: var(--amazon); }
+        .tab-button[data-platform="blinkit"]:hover { color: var(--blinkit-dark); }
+        .tab-button[data-platform="zepto"]:hover { color: var(--zepto); }
+        .tab-button[data-platform="instamart"]:hover { color: var(--instamart); }
+        .platform-amazon .kpi-card { border-left-color: var(--amazon); }
+        .platform-blinkit .kpi-card { border-left-color: var(--blinkit); }
+        .platform-zepto .kpi-card { border-left-color: var(--zepto); }
+        .platform-instamart .kpi-card { border-left-color: var(--instamart); }
+        .platform-amazon .chart-container h3 { color: var(--amazon-dark); }
+        .platform-blinkit .chart-container h3 { color: var(--blinkit-dark); }
+        .platform-zepto .chart-container h3 { color: var(--zepto-dark); }
+        .platform-instamart .chart-container h3 { color: var(--instamart-dark); }
+    
+        /* Animated Counter */
+        .kpi-value { transition: opacity 0.3s; }
+        
+        /* Key Insights Callout */
+        .insights-box {
+            background: linear-gradient(135deg, #f0fafa 0%, #e8f8f7 100%);
+            border-left: 4px solid var(--ns-teal);
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin-bottom: 25px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .insights-box h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ns-teal-dark);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .insights-box h3::before { content: '💡'; }
+        .insights-list {
+            list-style: none;
+            padding: 0;
+        }
+        .insights-list li {
+            font-size: 13px;
+            color: #444;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .insights-list li:last-child { border-bottom: none; }
+        .insights-list li::before { content: '→'; color: var(--ns-teal); font-weight: 700; }
+        .insight-tag {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .tag-win { background: #e6f9ee; color: #27AE60; }
+        .tag-action { background: #fff3e0; color: #F2994A; }
+        .tag-growth { background: #e8f0fe; color: #4285f4; }
+
+        /* Print/Export Button */
+        .print-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--ns-teal);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(28,191,187,0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+        .print-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(28,191,187,0.4); }
+        @media print {
+            .print-btn, .tab-navigation, .filter-bar { display: none !important; }
+            .tab-content { display: block !important; page-break-before: always; }
+            .tab-content:first-child { page-break-before: avoid; }
+            body { background: white; }
+        }
+
+        /* Sparkline */
+        .kpi-sparkline {
+            margin-top: 8px;
+            height: 24px;
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+        }
+        .spark-bar {
+            flex: 1;
+            background: var(--ns-teal);
+            border-radius: 2px 2px 0 0;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        .spark-bar:last-child { opacity: 1; }
+        .platform-amazon .spark-bar { background: var(--amazon); }
+        .platform-blinkit .spark-bar { background: var(--blinkit-dark); }
+        .platform-zepto .spark-bar { background: var(--zepto); }
+        .platform-instamart .spark-bar { background: var(--instamart); }
+
+        /* Recommendations Tab */
+        .rec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .rec-card {
+            background: var(--ns-white);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-top: 4px solid var(--ns-teal);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .rec-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+        .rec-card.high-impact { border-top-color: var(--ns-green); }
+        .rec-card.quick-win { border-top-color: var(--amazon); }
+        .rec-card.strategic { border-top-color: var(--zepto); }
+        .rec-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        .rec-badge.high-impact { background: #e6f9ee; color: #27AE60; }
+        .rec-badge.quick-win { background: #fff3e0; color: #CC7A00; }
+        .rec-badge.strategic { background: #f0e6ff; color: #6C2DC7; }
+        .rec-card h4 { font-size: 16px; font-weight: 700; color: var(--ns-black); margin-bottom: 8px; }
+        .rec-card p { font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 12px; }
+        .rec-impact { font-size: 12px; font-weight: 600; color: var(--ns-teal-dark); background: #f0fafa; padding: 8px 12px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+    <img src="data:image/png;base64,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" alt="NorthSide">
+    <div>
+        <h1>Sample Advertising Dashboard</h1>
+        <div class="sub">NorthSide | Multi-Platform Ads Performance | Template</div>
+    </div>
+</div>
+
+    <nav class="tab-navigation">
+        <button class="tab-button active" onclick="switchTab('summary')">Summary</button>
+        <button class="tab-button" onclick="switchTab('amazon')" data-platform="amazon">Amazon</button>
+        <button class="tab-button" onclick="switchTab('blinkit')" data-platform="blinkit">Blinkit</button>
+        <button class="tab-button" onclick="switchTab('zepto')" data-platform="zepto">Zepto</button>
+        <button class="tab-button" onclick="switchTab('instamart')" data-platform="instamart">Instamart</button>
+        <button class="tab-button" onclick="switchTab('comparison')">Platform Comparison</button>
+        <button class="tab-button" onclick="switchTab('recommendations')" style="color:var(--ns-green);font-weight:700;">★ Recommendations</button>
+    </nav>
+
+    <div class="filter-bar">
+        <div class="filter-group">
+            <label for="month-filter">Month:</label>
+            <select id="month-filter">
+                <option value="jan">Jan 2026</option>
+                <option value="feb">Feb 2026</option>
+                <option value="mar" selected>Mar 2026</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="campaign-filter">Campaign Type:</label>
+            <select id="campaign-filter">
+                <option value="all" selected>All</option>
+                <option value="sp">Sponsored Products</option>
+                <option value="sb">Sponsored Brands</option>
+                <option value="sd">Sponsored Display</option>
+            </select>
+        </div>
+        <button class="reset-button" onclick="resetFilters()">Reset Filters</button>
+    </div>
+
+    <div class="container">
+        <!-- SUMMARY TAB -->
+        <div id="summary" class="tab-content active">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Ad Spend</div>
+                    <div class="kpi-value">₹18.4L</div>
+                    <div class="kpi-delta positive">▲ 22.5%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Revenue</div>
+                    <div class="kpi-value">₹82.5L</div>
+                    <div class="kpi-delta positive">▲ 34.8%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Overall ROAS</div>
+                    <div class="kpi-value">4.48x</div>
+                    <div class="kpi-delta positive">▲ 0.65x</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Average ACOS</div>
+                    <div class="kpi-value">22.3%</div>
+                    <div class="kpi-delta positive">▼ 3.3% (Improving)</div>
+                </div>
+            </div>
+
+            <div class="insights-box">
+                <h3>Key Insights — Overall Performance</h3>
+                <ul class="insights-list">
+                    <li><span class="insight-tag tag-win">Win</span> Overall ROAS at 4.48x — highest in last 3 months, driven by Amazon & Zepto optimizations</li>
+                    <li><span class="insight-tag tag-growth">Growth</span> Revenue grew 34.8% MoM with only 22.5% increase in ad spend — improving efficiency</li>
+                    <li><span class="insight-tag tag-action">Action</span> Blinkit CPC trending higher — consider reallocating 10-15% budget to Zepto auto-campaigns</li>
+                    <li><span class="insight-tag tag-win">Win</span> ACOS improved by 3.3 points — SP Automatic targeting delivering best cost-per-order</li>
+                </ul>
+            </div>
+
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-title">Revenue by Platform</div>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">Ad Spend Distribution</div>
+                    <div class="chart-container">
+                        <canvas id="spendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <div class="table-title">Platform Summary</div>
+                    <button class="export-button" onclick="exportTableToCSV('platformTable', 'platform_summary')">Export CSV</button>
+                </div>
+                <table id="platformTable">
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>Ad Spend</th>
+                            <th>Revenue</th>
+                            <th>ROAS</th>
+                            <th>ACOS</th>
+                            <th>CPC</th>
+                            <th>Impressions</th>
+                            <th>CTR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Amazon</strong></td>
+                            <td>₹5.2L</td>
+                            <td>₹22.8L</td>
+                            <td>4.38x</td>
+                            <td>22.8%</td>
+                            <td>₹18.50</td>
+                            <td>1.2M</td>
+                            <td>3.8%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Blinkit</strong></td>
+                            <td>₹3.8L</td>
+                            <td>₹14.2L</td>
+                            <td>3.74x</td>
+                            <td>26.7%</td>
+                            <td>₹12.40</td>
+                            <td>850K</td>
+                            <td>4.2%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Zepto</strong></td>
+                            <td>₹2.1L</td>
+                            <td>₹8.3L</td>
+                            <td>3.95x</td>
+                            <td>25.3%</td>
+                            <td>₹14.20</td>
+                            <td>620K</td>
+                            <td>3.5%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Instamart</strong></td>
+                            <td>₹1.4L</td>
+                            <td>₹3.4L</td>
+                            <td>2.43x</td>
+                            <td>41.2%</td>
+                            <td>₹22.80</td>
+                            <td>280K</td>
+                            <td>1.8%</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>TOTAL</td>
+                            <td>₹18.4L</td>
+                            <td>₹82.5L</td>
+                            <td>4.48x</td>
+                            <td>22.3%</td>
+                            <td>₹16.98</td>
+                            <td>2.95M</td>
+                            <td>3.6%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- AMAZON TAB -->
+        <div id="amazon" class="tab-content platform-amazon">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Ad Spend</div>
+                    <div class="kpi-value">₹5.2L</div>
+                    <div class="kpi-delta positive">▲ 12.1%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Revenue</div>
+                    <div class="kpi-value">₹22.8L</div>
+                    <div class="kpi-delta positive">▲ 18.5%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">ROAS</div>
+                    <div class="kpi-value">4.38x</div>
+                    <div class="kpi-delta positive">▲ 0.18x</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">ACOS</div>
+                    <div class="kpi-value">22.8%</div>
+                    <div class="kpi-delta negative">▼ 2.1%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">CPC</div>
+                    <div class="kpi-value">₹18.50</div>
+                    <div class="kpi-delta positive">▲ 3.2%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">CTR</div>
+                    <div class="kpi-value">3.8%</div>
+                    <div class="kpi-delta positive">▲ 0.3%</div>
+                </div>
+            </div>
+
+            <div class="insights-box">
+                <h3>Key Insights — Amazon</h3>
+                <ul class="insights-list">
+                    <li><span class="insight-tag tag-win">Win</span> ROAS at 4.38x with strong 18.5% revenue growth — SP campaigns outperforming benchmarks</li>
+                    <li><span class="insight-tag tag-growth">Growth</span> Sponsored Brands driving 28% of total impressions at 15% lower CPC than industry average</li>
+                    <li><span class="insight-tag tag-action">Action</span> Scale top 5 converting keywords with 20% bid increase to capture more market share</li>
+                </ul>
+            </div>
+
+
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-title">Monthly Trend (Last 6 Months)</div>
+                    <div class="chart-container">
+                        <canvas id="amazonTrendChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">Campaign Type Performance</div>
+                    <div class="chart-container">
+                        <canvas id="amazonTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <div class="table-title">Campaign Performance</div>
+                    <button class="export-button" onclick="exportTableToCSV('amazonTable', 'amazon_campaigns')">Export CSV</button>
+                </div>
+                <table id="amazonTable">
+                    <thead>
+                        <tr>
+                            <th>Campaign Name</th>
+                            <th>Type</th>
+                            <th>Spend</th>
+                            <th>Revenue</th>
+                            <th>ROAS</th>
+                            <th>ACOS</th>
+                            <th>Impressions</th>
+                            <th>Clicks</th>
+                            <th>CTR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SP - Brand Keywords</td>
+                            <td>Sponsored Products</td>
+                            <td>₹2.1L</td>
+                            <td>₹10.2L</td>
+                            <td>4.86x</td>
+                            <td>20.6%</td>
+                            <td>580K</td>
+                            <td>22.3K</td>
+                            <td>3.8%</td>
+                        </tr>
+                        <tr>
+                            <td>SB - Category Awareness</td>
+                            <td>Sponsored Brands</td>
+                            <td>₹1.8L</td>
+                            <td>₹8.5L</td>
+                            <td>4.72x</td>
+                            <td>21.2%</td>
+                            <td>420K</td>
+                            <td>18.2K</td>
+                            <td>4.3%</td>
+                        </tr>
+                        <tr>
+                            <td>SD - Retargeting</td>
+                            <td>Sponsored Display</td>
+                            <td>₹1.3L</td>
+                            <td>₹4.1L</td>
+                            <td>3.15x</td>
+                            <td>31.7%</td>
+                            <td>200K</td>
+                            <td>6.8K</td>
+                            <td>3.4%</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>TOTAL</td>
+                            <td>-</td>
+                            <td>₹5.2L</td>
+                            <td>₹22.8L</td>
+                            <td>4.38x</td>
+                            <td>22.8%</td>
+                            <td>1.2M</td>
+                            <td>47.3K</td>
+                            <td>3.8%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <div class="table-title">Top Keywords</div>
+                    <button class="export-button" onclick="exportTableToCSV('amazonKeywords', 'amazon_keywords')">Export CSV</button>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="amazonKeywordSearch" placeholder="Search keywords..." onkeyup="filterTable('amazonKeywordSearch', 'amazonKeywords')">
+                </div>
+                <table id="amazonKeywords">
+                    <thead>
+                        <tr>
+                            <th>Keyword</th>
+                            <th>Match Type</th>
+                            <th>Spend</th>
+                            <th>Revenue</th>
+                            <th>ROAS</th>
+                            <th>Impressions</th>
+                            <th>Clicks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Sample Product A</td>
+                            <td>Broad</td>
+                            <td>₹45K</td>
+                            <td>₹220K</td>
+                            <td>4.89x</td>
+                            <td>125K</td>
+                            <td>5.2K</td>
+                        </tr>
+                        <tr>
+                            <td>Sample SKU 001</td>
+                            <td>Exact</td>
+                            <td>₹38K</td>
+                            <td>₹198K</td>
+                            <td>5.21x</td>
+                            <td>98K</td>
+                            <td>4.8K</td>
+                        </tr>
+                        <tr>
+                            <td>Sample Brand Premium</td>
+                            <td>Phrase</td>
+                            <td>₹52K</td>
+                            <td>₹215K</td>
+                            <td>4.13x</td>
+                            <td>145K</td>
+                            <td>6.1K</td>
+                        </tr>
+                        <tr>
+                            <td>Sample Category Search</td>
+                            <td>Broad</td>
+                            <td>₹31K</td>
+                            <td>₹142K</td>
+                            <td>4.58x</td>
+                            <td>87K</td>
+                            <td>3.2K</td>
+                        </tr>
+                        <tr>
+                            <td>Sample Variant X</td>
+                            <td>Exact</td>
+                            <td>₹28K</td>
+                            <td>₹125K</td>
+                            <td>4.46x</td>
+                            <td>72K</td>
+                            <td>2.9K</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- BLINKIT TAB -->
+        <div id="blinkit" class="tab-content platform-blinkit">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Ad Spend</div>
+                    <div class="kpi-value">₹3.8L</div>
+                    <div class="kpi-delta positive">▲ 5.2%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Revenue</div>
+                    <div class="kpi-value">₹14.2L</div>
+                    <div class="kpi-delta positive">▲ 11.8%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">ROAS</div>
+                    <div class="kpi-value">3.74x</div>
+                    <div class="kpi-delta positive">▲ 0.08x</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">ACOS</div>
+                    <div class="kpi-value">26.7%</div>
+                    <div class="kpi-delta negative">▼ 0.8%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">CPC</div>
+                    <div class="kpi-value">₹12.40</div>
+                    <div class="kpi-delta positive">▲ 1.5%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">CTR</div>
+                    <div class="kpi-value">4.2%</div>
+                    <div class="kpi-delta positive">▲ 0.6%</div>
+                </div>
+            </div>
+
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-title">Monthly Trend (Last 6 Months)</div>
+                    <div class="chart-container">
+                        <canvas id="blinkitTrendChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">Campaign Type Performance</div>
+                    <div class="chart-container">
+                        <canvas id="blinkitTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <div class="table-title">Campaign Performance</div>
+                    <button class="export-button" onclick="exportTableToCSV('blinkitTable', 'blinkit_campaigns')">Export CSV</button>
+                </div>
+                <table id="blinkitTable">
+                    <thead>
+                        <tr>
+                            <th>Campaign Name</th>
+                            <th>Type</th>
+                            <th>Spend</th>
+                            <th>Revenue</th>
+                            <th>ROAS</th>
+                            <th>ACOS</th>
+                            <th>Impressions</th>
+                            <th>Clicks</th>
+                            <th>CTR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SP - Quick Commerce</td>
+                            <td>Sponsored Products</td>
+                            <td>₹1.9L</td>
+                            <td>₹7.1L</td>
+                            <td>3.74x</td>
+                            <td>26.7%</td>
+                            <td>420K</td>
+                            <td>18.5K</td>
+                            <td>4.4%</td>
+                        </tr>
+                        <tr>
+                            <td>SB - Speed Focused</td>
+                            <td>Sponsored Brands</td>
+                            <td>₹1.2L</td>
+                            <td>₹4.8L</td>
+                            <td>4.00x</td>
+                            <td>25.0%</td>
+                            <td>280K</td>
+                            <td>12.8K</td>
+                            <td>4.6%</td>
+                        </tr>
+                        <tr>
+                            <td>SD - Recovery</td>
+                            <td>Sponsored Display</td>
+                            <td>₹0.7L</td>
+                            <td>₹2.3L</td>
+                            <td>3.29x</td>
+                            <td>30.4%</td>
+                            <td>150K</td>
+                            <td>5.2K</td>
+                            <td>3.5%</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>TOTAL</td>
+                            <td>-</td>
+                            <td>₹3.8L</td>
+                            <td>₹14.2L</td>
+                            <td>3.74x</td>
+                            <td>26.7%</td>
+                            <td>850K</td>
+                            <td>36.5K</td>
+                            <td>4.2%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <div class="table-title">Top Keywords</div>
+                    <button class="export-button" onclick="exportTableToCSV('blinkitKeywords', 'blinkit_keywords')">Export CSV</button>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="blinkitKeywordSearch" placeholder="Search keywords..." onkeyup="filterTable('blinkitKeywordSearch', 'blinkitKeywords')">
+                </div>
+                <table id="blinkitKeywords">
+                    <thead>
+                        <tr>
+                            <th>Keyword</th>
+                            <th>Match Type</th>
+                            <th>Spend</th>
+                            <th>Revenue</th>
+                            <th>ROAS</th>
+                            <th>Impressions</th>
+                            <th>Clicks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Sample Product Quick</td>
+                            <td>Broad</td>
+                            <td>₹32K</td>
+                            <td>₹125K</td>
+                            <td>3.91x</td>
+                            <td>145K</td>
+                            <td>6.8K</td>
+                        </tr>
+                        <tr>
+                            <td>Sample Delivery Fast</td>
+                            <td>Phrase</td>
+                            <td>₹28K</td>
+                            <td>₹108K</td>
+                            <td>3.86x</td>
+                            <td>124K</td>
+                            <td>5.6K</td>
+                        </tr>
+                        <tr>
+                            <td>Sample Online Order</td>
+                            <td>Exact</td>
+                            <td>₹35K</td>
+                            <td>₹145K</td>
+                            <td>4.14x</td>
+                            <td>96K</td>
+                            <td>4.2K</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ZEPTO TAB -->
+        <div id="zepto" class="tab-content platform-zepto">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Ad Spend</div>
+                    <div class="kpi-value">₹2.1L</div>
+                    <div class="kpi-delta positive">▲ 3.8%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Revenue</div>
+                    <div class="kpi-value">₹8.3L</div>
+                    <div class="kpi-delta positive">▲ 9.2%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">ROAS</div>
+                    <div class="kpi-value">3.95x</div>
+                    <div class="kpi-delta positive">▲ 0.14x</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">ACOS</div>
+                    <div class="kpi-value">25.3%</div>
+                    <div class="kpi-delta negative">▼ 1.5%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">CPC</div>
+                    <div class="kpi-value">₹14.20</div>
+                    <div class="kpi-delta positive">▲ 2.1%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">CTR</div>
+                    <div class="kpi-value">3.5%</div>
+                    <div class="kpi-delta positive">▲ 0.4%</div>
+                </div>
+            </div>
+
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-title">Monthly Trend (Last 6 Months)</div>
+                    <div class="chart-container">
+                        <canvas id="zeptoTrendChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">Campaign Type Performance</div>
+                    <div class="chart-container">
+                        <canvas id="zeptoTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <div class="table-title">Campaign Performance</div>
+                    <button class="export-button" onclick="exportTableToCSV('zeptoTable', 'zepto_campaigns')">Export CSV</button>
+                </div>
+                <table id="zeptoTable">
+                    <thead>
+                        <tr>
+                            <th>Campaign Name</th>
+                            <th>Type</th>
+                            <th>Spend</th>
+                            <th>Revenue</th>
+                            <th>ROAS</th>
+                            <th>ACOS</th>
+                            <th>Impressions</th>
+                            <th>Clicks</th>
+                            <th>CTR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SP - Essential Goods</td>
+                            <td>Sponsored Products</td>
+                            <td>₹1.1L</td>
+                            <td>₹4.5L</td>
+                            <td>4.09x</td>
+                            <td>24.4%</td>
+                            <td>310K</td>
+                            <td>11.2K</td>
+                            <td>3.6%</td>
+                        </tr>
+                        <tr>
+                            <td>SB - Daily Needs</td>
+                            <td>Sponsored Brands</td>
+                            <td>₹0.7L</td>
+                            <td>₹2.8L</td>
+                            <td>4.00x</td>
+                            <td>25.0%</td>
+                            <td>210K</td>
+                            <td>7.8K</td>
+                            <td>3.7%</td>
+                        </tr>
+                        <tr>
+                            <td>SD - Cross-Sell</td>
+                            <td>Sponsored Display</td>
+                            <td>₹0.3L</td>
+                            <td>₹1.0L</td>
+                            <td>3.33x</td>
+                            <td>30.0%</td>
+                            <td>100K</td>
+                            <td>2.8K</td>
+                            <td>2.8%</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>TOTAL</td>
+                            <td>-</td>
+                            <td>₹2.1L</td>
+                            <td>₹8.3L</td>
+                            <td>3.95x</td>
+                            <td>25.3%</td>
+                            <td>620K</td>
+                            <td>21.8K</td>
+                            <td>3.5%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <div class="table-title">Top Keywords</div>
+                    <button class="export-button" onclick="exportTableToCSV('zeptoKeywords', 'zepto_keywords')">Export CSV</button>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="zeptoKeywordSearch" placeholder="Search keywords..." onkeyup="filterTable('zeptoKeywordSearch', 'zeptoKeywords')">
+                </div>
+                <table id="zeptoKeywords">
+                    <thead>
+                        <tr>
+                            <th>Keyword</th>
+                            <th>Match Type</th>
+                            <th>Spend</th>
+                            <th>Revenue</th>
+                            <th>ROAS</th>
+                            <th>Impressions</th>
+                            <th>Clicks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Sample Convenience</td>
+                            <td>Broad</td>
+                            <td>₹28K</td>
+                            <td>₹115K</td>
+                            <td>4.11x</td>
+                            <td>132K</td>
+                            <td>4.8K</td>
+                        </tr>
+                        <tr>
+                            <td>Sample Home Delivery</td>
+                            <td>Phrase</td>
+                            <td>₹22K</td>
+                            <td>₹88K</td>
+                            <td>4.00x</td>
+                            <td>98K</td>
+                            <td>3.5K</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- INSTAMART TAB -->
+        <div id="instamart" class="tab-content platform-instamart">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Ad Spend</div>
+                    <div class="kpi-value">₹1.4L</div>
+                    <div class="kpi-delta negative">▼ 2.3%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Revenue</div>
+                    <div class="kpi-value">₹3.4L</div>
+                    <div class="kpi-delta positive">▲ 5.1%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">ROAS</div>
+                    <div class="kpi-value">2.43x</div>
+                    <div class="kpi-delta positive">▲ 0.22x</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">ACOS</div>
+                    <div class="kpi-value">41.2%</div>
+                    <div class="kpi-delta negative">▼ 2.8%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">CPC</div>
+                    <div class="kpi-value">₹22.80</div>
+                    <div class="kpi-delta positive">▲ 0.8%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">CTR</div>
+                    <div class="kpi-value">1.8%</div>
+                    <div class="kpi-delta negative">▼ 0.2%</div>
+                </div>
+            </div>
+
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-title">Monthly Trend (Last 6 Months)</div>
+                    <div class="chart-container">
+                        <canvas id="instamartTrendChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">Campaign Type Performance</div>
+                    <div class="chart-container">
+                        <canvas id="instamartTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <div class="table-title">Campaign Performance</div>
+                    <button class="export-button" onclick="exportTableToCSV('instamartTable', 'instamart_campaigns')">Export CSV</button>
+                </div>
+                <table id="instamartTable">
+                    <thead>
+                        <tr>
+                            <th>Campaign Name</th>
+                            <th>Type</th>
+                            <th>Spend</th>
+                            <th>Revenue</th>
+                            <th>ROAS</th>
+                            <th>ACOS</th>
+                            <th>Impressions</th>
+                            <th>Clicks</th>
+                            <th>CTR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SP - Groceries</td>
+                            <td>Sponsored Products</td>
+                            <td>₹0.8L</td>
+                            <td>₹1.8L</td>
+                            <td>2.25x</td>
+                            <td>44.4%</td>
+                            <td>165K</td>
+                            <td>3.1K</td>
+                            <td>1.9%</td>
+                        </tr>
+                        <tr>
+                            <td>SB - Brand Store</td>
+                            <td>Sponsored Brands</td>
+                            <td>₹0.4L</td>
+                            <td>₹1.2L</td>
+                            <td>3.00x</td>
+                            <td>33.3%</td>
+                            <td>78K</td>
+                            <td>1.8K</td>
+                            <td>2.3%</td>
+                        </tr>
+                        <tr>
+                            <td>SD - Remarketing</td>
+                            <td>Sponsored Display</td>
+                            <td>₹0.2L</td>
+                            <td>₹0.4L</td>
+                            <td>2.00x</td>
+                            <td>50.0%</td>
+                            <td>37K</td>
+                            <td>0.5K</td>
+                            <td>1.4%</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>TOTAL</td>
+                            <td>-</td>
+                            <td>₹1.4L</td>
+                            <td>₹3.4L</td>
+                            <td>2.43x</td>
+                            <td>41.2%</td>
+                            <td>280K</td>
+                            <td>5.4K</td>
+                            <td>1.8%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <div class="table-title">Top Keywords</div>
+                    <button class="export-button" onclick="exportTableToCSV('instamartKeywords', 'instamart_keywords')">Export CSV</button>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="instamartKeywordSearch" placeholder="Search keywords..." onkeyup="filterTable('instamartKeywordSearch', 'instamartKeywords')">
+                </div>
+                <table id="instamartKeywords">
+                    <thead>
+                        <tr>
+                            <th>Keyword</th>
+                            <th>Match Type</th>
+                            <th>Spend</th>
+                            <th>Revenue</th>
+                            <th>ROAS</th>
+                            <th>Impressions</th>
+                            <th>Clicks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Sample Pantry</td>
+                            <td>Broad</td>
+                            <td>₹18K</td>
+                            <td>₹42K</td>
+                            <td>2.33x</td>
+                            <td>92K</td>
+                            <td>1.8K</td>
+                        </tr>
+                        <tr>
+                            <td>Sample Staples</td>
+                            <td>Exact</td>
+                            <td>₹15K</td>
+                            <td>₹35K</td>
+                            <td>2.33x</td>
+                            <td>68K</td>
+                            <td>1.2K</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PLATFORM COMPARISON TAB -->
+        <div id="comparison" class="tab-content">
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-title">ROAS Comparison Across Platforms</div>
+                    <div class="chart-container">
+                        <canvas id="roasComparisonChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">Spend vs Revenue by Platform</div>
+                    <div class="chart-container">
+                        <canvas id="spendVsRevenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <div class="table-title">Platform Comparison</div>
+                    <button class="export-button" onclick="exportTableToCSV('comparisonTable', 'platform_comparison')">Export CSV</button>
+                </div>
+                <table id="comparisonTable">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Amazon</th>
+                            <th>Blinkit</th>
+                            <th>Zepto</th>
+                            <th>Instamart</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Ad Spend</strong></td>
+                            <td>₹5.2L</td>
+                            <td>₹3.8L</td>
+                            <td>₹2.1L</td>
+                            <td>₹1.4L</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Revenue</strong></td>
+                            <td>₹22.8L</td>
+                            <td>₹14.2L</td>
+                            <td>₹8.3L</td>
+                            <td>₹3.4L</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ROAS</strong></td>
+                            <td>4.38x</td>
+                            <td>3.74x</td>
+                            <td>3.95x</td>
+                            <td>2.43x</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ACOS</strong></td>
+                            <td>22.8%</td>
+                            <td>26.7%</td>
+                            <td>25.3%</td>
+                            <td>41.2%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CPC</strong></td>
+                            <td>₹18.50</td>
+                            <td>₹12.40</td>
+                            <td>₹14.20</td>
+                            <td>₹22.80</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CTR</strong></td>
+                            <td>3.8%</td>
+                            <td>4.2%</td>
+                            <td>3.5%</td>
+                            <td>1.8%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Impressions</strong></td>
+                            <td>1.2M</td>
+                            <td>850K</td>
+                            <td>620K</td>
+                            <td>280K</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td><strong>TOTAL</strong></td>
+                            <td>₹5.2L</td>
+                            <td>₹3.8L</td>
+                            <td>₹2.1L</td>
+                            <td>₹1.4L</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Prepared by NorthSide | www.northside.co.in | Sample Template — Not Actual Client Data
+    </footer>
+
+    <script>
+        // Chart.js Color Palette
+        const chartColors = ['#1CBFBB', '#369290', '#52BFBC', '#7D7D7D', '#E6E4E4'];
+
+        // Initialize charts
+        function initCharts() {
+            // Summary - Revenue by Platform
+            const revenueCtx = document.getElementById('revenueChart');
+            if (revenueCtx) {
+                new Chart(revenueCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Amazon', 'Blinkit', 'Zepto', 'Instamart'],
+                        datasets: [{
+                            label: 'Revenue (₹ Lakhs)',
+                            data: [22.8, 14.2, 8.3, 3.4],
+                            backgroundColor: chartColors.slice(0, 4),
+                            borderRadius: 6,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#F2F2F2' }
+                            },
+                            x: {
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Summary - Ad Spend Distribution
+            const spendCtx = document.getElementById('spendChart');
+            if (spendCtx) {
+                new Chart(spendCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Amazon', 'Blinkit', 'Zepto', 'Instamart'],
+                        datasets: [{
+                            data: [41.6, 30.4, 16.8, 11.2],
+                            backgroundColor: chartColors.slice(0, 4)
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+
+            // Amazon - Trend
+            const amazonTrendCtx = document.getElementById('amazonTrendChart');
+            if (amazonTrendCtx) {
+                new Chart(amazonTrendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Oct 2025', 'Nov 2025', 'Dec 2025', 'Jan 2026', 'Feb 2026', 'Mar 2026'],
+                        datasets: [
+                            {
+                                label: 'Spend (₹L)',
+                                data: [4.2, 4.5, 5.0, 4.8, 5.0, 5.2],
+                                borderColor: '#1CBFBB',
+                                backgroundColor: 'rgba(28, 191, 187, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            },
+                            {
+                                label: 'Revenue (₹L)',
+                                data: [18.5, 19.2, 21.0, 20.8, 21.5, 22.8],
+                                borderColor: '#369290',
+                                backgroundColor: 'rgba(54, 146, 144, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        },
+                        scales: {
+                            y: { grid: { color: '#F2F2F2' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // Amazon - Campaign Type
+            const amazonTypeCtx = document.getElementById('amazonTypeChart');
+            if (amazonTypeCtx) {
+                new Chart(amazonTypeCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['SP', 'SB', 'SD'],
+                        datasets: [{
+                            label: 'Revenue (₹L)',
+                            data: [10.2, 8.5, 4.1],
+                            backgroundColor: [chartColors[0], chartColors[1], chartColors[2]],
+                            borderRadius: 6,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: '#F2F2F2' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // Blinkit - Trend
+            const blinkitTrendCtx = document.getElementById('blinkitTrendChart');
+            if (blinkitTrendCtx) {
+                new Chart(blinkitTrendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Oct 2025', 'Nov 2025', 'Dec 2025', 'Jan 2026', 'Feb 2026', 'Mar 2026'],
+                        datasets: [
+                            {
+                                label: 'Spend (₹L)',
+                                data: [3.2, 3.4, 3.6, 3.7, 3.8, 3.8],
+                                borderColor: '#1CBFBB',
+                                backgroundColor: 'rgba(28, 191, 187, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            },
+                            {
+                                label: 'Revenue (₹L)',
+                                data: [11.5, 12.1, 12.8, 13.5, 14.0, 14.2],
+                                borderColor: '#369290',
+                                backgroundColor: 'rgba(54, 146, 144, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } },
+                        scales: {
+                            y: { grid: { color: '#F2F2F2' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // Blinkit - Campaign Type
+            const blinkitTypeCtx = document.getElementById('blinkitTypeChart');
+            if (blinkitTypeCtx) {
+                new Chart(blinkitTypeCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['SP', 'SB', 'SD'],
+                        datasets: [{
+                            label: 'Revenue (₹L)',
+                            data: [7.1, 4.8, 2.3],
+                            backgroundColor: [chartColors[0], chartColors[1], chartColors[2]],
+                            borderRadius: 6,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: '#F2F2F2' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // Zepto - Trend
+            const zeptoTrendCtx = document.getElementById('zeptoTrendChart');
+            if (zeptoTrendCtx) {
+                new Chart(zeptoTrendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Oct 2025', 'Nov 2025', 'Dec 2025', 'Jan 2026', 'Feb 2026', 'Mar 2026'],
+                        datasets: [
+                            {
+                                label: 'Spend (₹L)',
+                                data: [1.8, 1.9, 2.0, 2.05, 2.08, 2.1],
+                                borderColor: '#1CBFBB',
+                                backgroundColor: 'rgba(28, 191, 187, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            },
+                            {
+                                label: 'Revenue (₹L)',
+                                data: [7.0, 7.3, 7.6, 7.9, 8.1, 8.3],
+                                borderColor: '#369290',
+                                backgroundColor: 'rgba(54, 146, 144, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } },
+                        scales: {
+                            y: { grid: { color: '#F2F2F2' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // Zepto - Campaign Type
+            const zeptoTypeCtx = document.getElementById('zeptoTypeChart');
+            if (zeptoTypeCtx) {
+                new Chart(zeptoTypeCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['SP', 'SB', 'SD'],
+                        datasets: [{
+                            label: 'Revenue (₹L)',
+                            data: [4.5, 2.8, 1.0],
+                            backgroundColor: [chartColors[0], chartColors[1], chartColors[2]],
+                            borderRadius: 6,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: '#F2F2F2' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // Instamart - Trend
+            const instamartTrendCtx = document.getElementById('instamartTrendChart');
+            if (instamartTrendCtx) {
+                new Chart(instamartTrendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Oct 2025', 'Nov 2025', 'Dec 2025', 'Jan 2026', 'Feb 2026', 'Mar 2026'],
+                        datasets: [
+                            {
+                                label: 'Spend (₹L)',
+                                data: [1.6, 1.5, 1.45, 1.42, 1.40, 1.4],
+                                borderColor: '#1CBFBB',
+                                backgroundColor: 'rgba(28, 191, 187, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            },
+                            {
+                                label: 'Revenue (₹L)',
+                                data: [3.0, 3.1, 3.2, 3.25, 3.3, 3.4],
+                                borderColor: '#369290',
+                                backgroundColor: 'rgba(54, 146, 144, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } },
+                        scales: {
+                            y: { grid: { color: '#F2F2F2' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // Instamart - Campaign Type
+            const instamartTypeCtx = document.getElementById('instamartTypeChart');
+            if (instamartTypeCtx) {
+                new Chart(instamartTypeCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['SP', 'SB', 'SD'],
+                        datasets: [{
+                            label: 'Revenue (₹L)',
+                            data: [1.8, 1.2, 0.4],
+                            backgroundColor: [chartColors[0], chartColors[1], chartColors[2]],
+                            borderRadius: 6,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: '#F2F2F2' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // Comparison - ROAS
+            const roasCtx = document.getElementById('roasComparisonChart');
+            if (roasCtx) {
+                new Chart(roasCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Amazon', 'Blinkit', 'Zepto', 'Instamart'],
+                        datasets: [{
+                            label: 'ROAS (x)',
+                            data: [4.38, 3.74, 3.95, 2.43],
+                            backgroundColor: chartColors.slice(0, 4),
+                            borderRadius: 6,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: '#F2F2F2' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // Comparison - Spend vs Revenue
+            const spendVsRevenueCtx = document.getElementById('spendVsRevenueChart');
+            if (spendVsRevenueCtx) {
+                new Chart(spendVsRevenueCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Amazon', 'Blinkit', 'Zepto', 'Instamart'],
+                        datasets: [
+                            {
+                                label: 'Spend (₹L)',
+                                data: [5.2, 3.8, 2.1, 1.4],
+                                backgroundColor: '#1CBFBB'
+                            },
+                            {
+                                label: 'Revenue (₹L)',
+                                data: [22.8, 14.2, 8.3, 3.4],
+                                backgroundColor: '#369290'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } },
+                        scales: {
+                            y: { grid: { color: '#F2F2F2' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Tab switching function
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            setTimeout(() => {
+                const allCanvases = document.querySelectorAll('canvas');
+                allCanvases.forEach(canvas => {
+                    const chartInstance = Chart.getChart(canvas);
+                    if (chartInstance) chartInstance.resize();
+                });
+                runCounterAnimation();
+            }, 100);
+        }
+
+        // Reset filters function
+        function resetFilters() {
+            document.getElementById('month-filter').value = 'mar';
+            document.getElementById('campaign-filter').value = 'all';
+        }
+
+        // Export table to CSV
+        function exportTableToCSV(tableId, filename) {
+            const table = document.getElementById(tableId);
+            let csv = [];
+
+            // Get headers
+            const headers = [];
+            table.querySelectorAll('thead th').forEach(th => {
+                headers.push(th.textContent.trim());
+            });
+            csv.push(headers.join(','));
+
+            // Get rows
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                const row = [];
+                tr.querySelectorAll('td').forEach(td => {
+                    row.push('"' + td.textContent.trim().replace(/"/g, '""') + '"');
+                });
+                csv.push(row.join(','));
+            });
+
+            // Create blob and download
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename + '.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Filter table function for keyword search
+        function filterTable(searchId, tableId) {
+            const input = document.getElementById(searchId);
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById(tableId);
+            const rows = table.querySelectorAll('tbody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        }
+
+
+        // Animated counter
+        function animateValue(el, start, end, duration, prefix, suffix) {
+            prefix = prefix || '';
+            suffix = suffix || '';
+            const range = end - start;
+            const startTime = performance.now();
+            function step(timestamp) {
+                const progress = Math.min((timestamp - startTime) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = start + (range * eased);
+                if (end >= 100) {
+                    el.textContent = prefix + current.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + suffix;
+                } else {
+                    el.textContent = prefix + current.toFixed(end < 10 ? 2 : 1) + suffix;
+                }
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        // Add sparklines to KPI cards
+        function addSparklines() {
+            document.querySelectorAll('.kpi-card').forEach(card => {
+                if (card.querySelector('.kpi-sparkline')) return;
+                const spark = document.createElement('div');
+                spark.className = 'kpi-sparkline';
+                const heights = [];
+                for (let i = 0; i < 6; i++) {
+                    heights.push(40 + Math.random() * 40 + (i * 5));
+                }
+                const max = Math.max(...heights);
+                heights.forEach(h => {
+                    const bar = document.createElement('div');
+                    bar.className = 'spark-bar';
+                    bar.style.height = (h / max * 100) + '%';
+                    spark.appendChild(bar);
+                });
+                card.appendChild(spark);
+            });
+        }
+
+        // Run counter animation on visible tab
+        function runCounterAnimation() {
+            const activeTab = document.querySelector('.tab-content.active');
+            if (!activeTab) return;
+            activeTab.querySelectorAll('.kpi-value').forEach(el => {
+                const text = el.textContent.trim();
+                let num, prefix = '', suffix = '';
+                if (text.includes('₹')) {
+                    prefix = '₹';
+                    const numPart = text.replace('₹', '').replace(/,/g, '');
+                    if (numPart.includes('Cr')) { num = parseFloat(numPart); suffix = 'Cr'; }
+                    else if (numPart.includes('L')) { num = parseFloat(numPart); suffix = 'L'; }
+                    else { num = parseFloat(numPart); }
+                } else if (text.includes('x')) {
+                    num = parseFloat(text); suffix = 'x';
+                } else if (text.includes('%')) {
+                    num = parseFloat(text); suffix = '%';
+                } else {
+                    num = parseFloat(text.replace(/,/g, ''));
+                }
+                if (!isNaN(num)) animateValue(el, 0, num, 800, prefix, suffix);
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+            addSparklines();
+            setTimeout(runCounterAnimation, 300);
+        });
+    </script>
+
+    <button class="print-btn" onclick="window.print()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Export PDF
+    </button>
+</body>
+</html>
