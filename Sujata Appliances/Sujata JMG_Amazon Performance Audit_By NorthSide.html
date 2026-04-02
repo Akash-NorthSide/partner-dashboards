@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sujata JMG — Amazon Performance Audit</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         * {
@@ -13,8 +14,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #ffffff;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
             color: #020202;
         }
 
@@ -54,34 +55,39 @@
 
 
         .tabs {
-            background: #ffffff;
-            border-bottom: 1px solid #e0e0e0;
+            background: #f1f5f9;
+            border-bottom: none;
+            border-radius: 0;
             display: flex;
-            gap: 0;
+            gap: 4px;
             overflow-x: auto;
-            padding: 0 30px;
+            padding: 6px 30px;
         }
 
         .tab-button {
-            background: none;
+            background: transparent;
             border: none;
-            padding: 14px 18px;
+            border-radius: 8px;
+            padding: 10px 16px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.875rem;
             font-weight: 500;
-            color: #666;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
+            color: #64748B;
+            transition: all 0.2s ease;
             white-space: nowrap;
         }
 
         .tab-button:hover {
-            color: #1CBFBB;
+            background: rgba(255,255,255,0.7);
+            color: #020202;
         }
 
         .tab-button.active {
+            background: #ffffff;
             color: #1CBFBB;
-            border-bottom-color: #1CBFBB;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-weight: 600;
+            border-bottom: none;
         }
 
         .content {
@@ -123,10 +129,10 @@
 
         .kpi-card {
             background: #ffffff;
-            border: 1px solid #e0e0e0;
+            border: 1px solid rgba(0,0,0,0.06);
             border-radius: 8px;
             padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0,0,0,0.05);
             transition: all 0.3s ease;
         }
 
@@ -239,17 +245,20 @@
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0,0,0,0.05);
             position: relative;
             height: 400px;
         }
 
         .glossary {
-            background: #f8f9fa;
+            background: #ffffff;
             border-radius: 8px;
             padding: 20px;
             margin-top: 30px;
             border-left: 4px solid #1CBFBB;
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0,0,0,0.05);
         }
 
         .glossary-title {
@@ -306,7 +315,14 @@
             background: white;
             border-radius: 8px;
             padding: 25px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .comparison-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08);
+            border-color: rgba(28,191,187,0.3);
         }
 
         .comparison-header {
@@ -353,7 +369,9 @@
             padding: 16px;
             margin-bottom: 15px;
             border-left: 4px solid #1CBFBB;
-            border: 1px solid #e0e0e0;
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
         }
 
         .recommendation-header {
@@ -410,6 +428,91 @@
             font-weight: 600;
         }
 
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .table-container table {
+            margin-bottom: 0;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+                padding: 12px 16px;
+                gap: 8px;
+            }
+            .header-logo { height: 32px; }
+            .header-center h1 { font-size: 1.1rem; }
+            .header-center p { font-size: 0.75rem; }
+
+            .tabs {
+                padding: 6px 12px;
+                gap: 4px;
+                -webkit-overflow-scrolling: touch;
+            }
+            .tab-button {
+                padding: 10px 12px;
+                font-size: 0.8rem;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+
+            .content { padding: 16px; }
+
+            .kpi-cards {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .kpi-card { padding: 14px; }
+            .kpi-value { font-size: 1.3rem; }
+
+            .exec-two-col {
+                flex-direction: column !important;
+            }
+            .exec-col-left, .exec-col-right {
+                flex: none !important;
+                width: 100% !important;
+            }
+
+            .comparison-container {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 300px;
+                padding: 12px;
+            }
+
+            .section-title { font-size: 1.1rem; }
+
+            table { font-size: 0.85rem; }
+            th, td { padding: 8px 10px; }
+
+            .tab-footer {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .kpi-cards {
+                grid-template-columns: 1fr;
+            }
+            .exec-kpi-row {
+                flex-direction: column;
+            }
+            .exec-kpi {
+                min-width: unset;
+            }
+        }
+
         @media print {
             .tabs { display: none; }
             .tab-pane { display: block !important; page-break-after: always; }
@@ -454,7 +557,7 @@
         .exec-col-right { flex: 1; }
 
         .exec-section-title { font-size: 0.95rem; font-weight: 700; color: #020202; background: #1CBFBB; color: white; padding: 6px 12px; border-radius: 4px 4px 0 0; margin: 0; }
-        .exec-section-box { border: 1px solid #E2E8F0; border-top: none; padding: 12px; border-radius: 0 0 4px 4px; margin-bottom: 14px; }
+        .exec-section-box { background: #ffffff; border: 1px solid rgba(0,0,0,0.06); border-top: none; padding: 12px; border-radius: 0 0 4px 4px; margin-bottom: 14px; }
 
         .exec-finding { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; color: #333; }
         .exec-finding:last-child { border-bottom: none; }
@@ -498,6 +601,7 @@
         <button class="tab-button" onclick="switchTab('regional')">Regional & City</button>
         <button class="tab-button" onclick="switchTab('projections')">Before/After</button>
         <button class="tab-button" onclick="switchTab('recommendations')">Recommendations</button>
+        <button class="tab-button" onclick="switchTab('gv-diagnostic')">GV Diagnostic</button>
         <button class="tab-button" onclick="switchTab('glossary')">Data & Glossary</button>
     </div>
 
@@ -552,7 +656,7 @@
 
             <h3 class="exec-section-title">Portfolio Performance</h3>
             <div class="exec-section-box">
-            <table>
+            <div class="table-container"><table>
             <tr><th>Product Type</th><th>Tier</th><th>Retail Sales (₹)</th><th>Ad-ROAS</th></tr>
             <tr><td>Mixer Grinder</td><td>Tier 1</td><td>₹6.90 Cr</td><td style="color:#16A34A;font-weight:600;">30.0x</td></tr>
             <tr><td>JMG</td><td>Tier 1</td><td>₹4.66 Cr</td><td style="color:#16A34A;font-weight:600;">31.0x</td></tr>
@@ -563,7 +667,7 @@
             <tr><td>Citrus Juicer</td><td>Tier 3</td><td>₹5.6L</td><td style="color:#D97706;font-weight:600;">3.0x</td></tr>
             <tr><td>Hand Blender</td><td>Tier 3</td><td>₹5.2L</td><td style="color:#16A34A;font-weight:600;">5.5x</td></tr>
             <tr><td>Electric Kettle</td><td>Tier 3</td><td>₹2.8L</td><td style="color:#DC2626;font-weight:600;">1.9x</td></tr>
-            </table>
+            </table></div>
             </div>
 
             <h3 class="exec-section-title">Projected Impact</h3>
@@ -625,7 +729,7 @@
             </div>
 
             <h2 class="section-title">Tier Breakdown</h2>
-            <table>
+            <div class="table-container"><table>
                 <thead>
                     <tr>
                         <th>Product Type</th>
@@ -806,7 +910,7 @@
                         <td>0</td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
 
             <h2 class="section-title">Ad-ROAS by Tier</h2>
             <div class="chart-container">
@@ -846,7 +950,7 @@
             <h2 class="section-title">Campaign Architecture — Keyword-targeted campaigns are your efficiency leaders at 39.8x Ad-ROAS</h2>
 
             <h2 class="section-title">Targeting Mix Performance</h2>
-            <table>
+            <div class="table-container"><table>
                 <thead>
                     <tr>
                         <th>Targeting Type</th>
@@ -900,10 +1004,10 @@
                         <td>Blended performance across all channels</td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
 
             <h2 class="section-title">Top 5 Campaigns by Performance</h2>
-            <table>
+            <div class="table-container"><table>
                 <thead>
                     <tr>
                         <th>Campaign Name</th>
@@ -977,7 +1081,7 @@
                         <td></td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
 
             <h2 class="section-title">Spend Distribution by Targeting</h2>
             <div class="chart-container">
@@ -1024,7 +1128,7 @@
         <div id="asins" class="tab-pane">
             <h2 class="section-title">Top 6 ASINs — Stars drive 91% of revenue while Hidden Gems offer scaling opportunity</h2>
 
-            <table>
+            <div class="table-container"><table>
                 <thead>
                     <tr>
                         <th>Model</th>
@@ -1132,7 +1236,7 @@
                         <td></td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
 
             <h2 class="section-title">ASIN Quadrant View</h2>
             <div class="chart-container">
@@ -1190,7 +1294,7 @@
             </div>
 
             <h2 class="section-title">Keyword Performance by Intent Type</h2>
-            <table>
+            <div class="table-container"><table>
                 <thead>
                     <tr>
                         <th>Intent Type</th>
@@ -1244,7 +1348,7 @@
                         <td>Blended keyword performance</td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
 
             <h2 class="section-title">Keyword Strategy Gap Analysis</h2>
             <div class="chart-container">
@@ -1301,7 +1405,7 @@
             </div>
 
             <h2 class="section-title">Category Breakdown</h2>
-            <table>
+            <div class="table-container"><table>
                 <thead>
                     <tr>
                         <th>Category</th>
@@ -1354,7 +1458,7 @@
                         <td>Expand to 200+</td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
 
             <h2 class="section-title">Competitor Targeting Growth Opportunity</h2>
             <div class="chart-container">
@@ -1390,7 +1494,7 @@
             <h2 class="section-title">Regional & City Performance — South dominates at 38.9%, but East region underperforms at 8.4%</h2>
 
             <h2 class="section-title">Zone Performance</h2>
-            <table>
+            <div class="table-container"><table>
                 <thead>
                     <tr>
                         <th>Zone</th>
@@ -1431,10 +1535,10 @@
                         <td>100.0%</td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
 
             <h2 class="section-title">Top 10 States by Sales</h2>
-            <table>
+            <div class="table-container"><table>
                 <thead>
                     <tr>
                         <th>State</th>
@@ -1523,7 +1627,7 @@
                         <td></td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
 
             <h2 class="section-title">Sales Distribution by Zone</h2>
             <div class="chart-container">
@@ -1646,7 +1750,7 @@
             </div>
 
             <h2 class="section-title">Implementation Roadmap</h2>
-            <table>
+            <div class="table-container"><table>
                 <thead>
                     <tr>
                         <th>Phase</th>
@@ -1681,7 +1785,7 @@
                         <td>+3x Ad-ROAS</td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
 
             <div class="glossary">
                 <div class="glossary-title" onclick="toggleGlossary(this)">ⓘ How to Read This Tab</div>
@@ -1905,9 +2009,670 @@
 </div>
 
         <!-- TAB 10: DATA & GLOSSARY -->
+        <div id="gv-diagnostic" class="tab-pane">
+        <div class="content">
+            <!-- Section 1: Key GV Metrics -->
+            <h2 class="section-title">Sujata's Strong Organic Traffic Foundation</h2>
+            <div class="kpi-cards">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Indexed GV</div>
+                    <div class="kpi-value">42,55,066</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Avg Conversion Rate</div>
+                    <div class="kpi-value">1.20%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Avg Revenue per GV</div>
+                    <div class="kpi-value">₹64.9</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Browse-No-Buy Rate</div>
+                    <div class="kpi-value">10.3%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Ad Clicks</div>
+                    <div class="kpi-value">2,68,189</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Ad Click Share of GV</div>
+                    <div class="kpi-value">~12-13%</div>
+                </div>
+            </div>
+
+            <!-- Section 2: GV Share vs Sales Share by State -->
+            <h2 class="section-title">Where Traffic Converts Best</h2>
+            <div style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <canvas id="gvSalesScatter" height="400"></canvas>
+            </div>
+
+            <div class="table-container"><table>
+                <thead>
+                    <tr>
+                        <th>State</th>
+                        <th>Zone</th>
+                        <th>GV Share %</th>
+                        <th>Sales Share %</th>
+                        <th>Gap %</th>
+                        <th>Conv Rate %</th>
+                        <th>₹/GV</th>
+                        <th>Diagnosis</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>TOTAL</td>
+                        <td>Unknown</td>
+                        <td>50.0%</td>
+                        <td>50.0%</td>
+                        <td>+0.0%</td>
+                        <td>1.20%</td>
+                        <td>₹64.9</td>
+                        <td>Balanced</td>
+                    </tr>
+                    <tr>
+                        <td>UTTAR PRADESH</td>
+                        <td>North</td>
+                        <td>6.5%</td>
+                        <td>5.6%</td>
+                        <td>+0.9%</td>
+                        <td>1.05%</td>
+                        <td>₹55.5</td>
+                        <td>Balanced</td>
+                    </tr>
+                    <tr>
+                        <td>KARNATAKA</td>
+                        <td>South</td>
+                        <td>5.8%</td>
+                        <td>5.4%</td>
+                        <td>+0.4%</td>
+                        <td>1.10%</td>
+                        <td>₹60.7</td>
+                        <td>Balanced</td>
+                    </tr>
+                    <tr>
+                        <td>DELHI</td>
+                        <td>North</td>
+                        <td>5.6%</td>
+                        <td>4.1%</td>
+                        <td>+1.5%</td>
+                        <td>0.90%</td>
+                        <td>₹47.1</td>
+                        <td>Balanced</td>
+                    </tr>
+                    <tr>
+                        <td>TELANGANA</td>
+                        <td>South</td>
+                        <td>5.5%</td>
+                        <td>5.0%</td>
+                        <td>+0.5%</td>
+                        <td>1.00%</td>
+                        <td>₹58.7</td>
+                        <td>Balanced</td>
+                    </tr>
+                    <tr>
+                        <td>MAHARASHTRA</td>
+                        <td>West</td>
+                        <td>4.5%</td>
+                        <td>5.1%</td>
+                        <td>-0.6%</td>
+                        <td>1.28%</td>
+                        <td>₹72.8</td>
+                        <td>Strong Converter — Low Traffic</td>
+                    </tr>
+                    <tr>
+                        <td>HARYANA</td>
+                        <td>North</td>
+                        <td>4.0%</td>
+                        <td>3.0%</td>
+                        <td>+1.0%</td>
+                        <td>0.97%</td>
+                        <td>₹49.2</td>
+                        <td>Balanced</td>
+                    </tr>
+                    <tr>
+                        <td>TAMIL NADU</td>
+                        <td>South</td>
+                        <td>2.5%</td>
+                        <td>3.2%</td>
+                        <td>-0.8%</td>
+                        <td>1.61%</td>
+                        <td>₹85.5</td>
+                        <td>Strong Converter — Low Traffic</td>
+                    </tr>
+                    <tr>
+                        <td>RAJASTHAN</td>
+                        <td>North</td>
+                        <td>2.5%</td>
+                        <td>2.2%</td>
+                        <td>+0.3%</td>
+                        <td>1.04%</td>
+                        <td>₹56.1</td>
+                        <td>Balanced</td>
+                    </tr>
+                    <tr>
+                        <td>KERALA</td>
+                        <td>South</td>
+                        <td>2.3%</td>
+                        <td>2.9%</td>
+                        <td>-0.6%</td>
+                        <td>1.85%</td>
+                        <td>₹81.8</td>
+                        <td>Strong Converter — Low Traffic</td>
+                    </tr>
+                    <tr>
+                        <td>ANDHRA PRADESH</td>
+                        <td>South</td>
+                        <td>1.9%</td>
+                        <td>2.6%</td>
+                        <td>-0.6%</td>
+                        <td>1.46%</td>
+                        <td>₹86.4</td>
+                        <td>Strong Converter — Low Traffic</td>
+                    </tr>
+                    <tr>
+                        <td>MADHYA PRADESH</td>
+                        <td>West</td>
+                        <td>1.4%</td>
+                        <td>1.5%</td>
+                        <td>-0.2%</td>
+                        <td>1.29%</td>
+                        <td>₹73.6</td>
+                        <td>Balanced</td>
+                    </tr>
+                    <tr>
+                        <td>PUNJAB</td>
+                        <td>North</td>
+                        <td>1.3%</td>
+                        <td>1.4%</td>
+                        <td>-0.1%</td>
+                        <td>1.28%</td>
+                        <td>₹68.6</td>
+                        <td>Balanced</td>
+                    </tr>
+                    <tr>
+                        <td>BIHAR</td>
+                        <td>East</td>
+                        <td>1.2%</td>
+                        <td>1.6%</td>
+                        <td>-0.4%</td>
+                        <td>1.47%</td>
+                        <td>₹84.7</td>
+                        <td>Balanced</td>
+                    </tr>
+                    <tr>
+                        <td>GUJARAT</td>
+                        <td>West</td>
+                        <td>1.1%</td>
+                        <td>1.5%</td>
+                        <td>-0.3%</td>
+                        <td>1.48%</td>
+                        <td>₹84.4</td>
+                        <td>Balanced</td>
+                    </tr>
+                    <tr>
+                        <td>UTTARAKHAND</td>
+                        <td>North</td>
+                        <td>0.9%</td>
+                        <td>0.7%</td>
+                        <td>+0.1%</td>
+                        <td>1.00%</td>
+                        <td>₹54.2</td>
+                        <td>Balanced</td>
+                    </tr>
+                    <tr>
+                        <td>WEST BENGAL</td>
+                        <td>East</td>
+                        <td>0.8%</td>
+                        <td>1.2%</td>
+                        <td>-0.4%</td>
+                        <td>1.64%</td>
+                        <td>₹93.1</td>
+                        <td>Balanced</td>
+                    </tr>
+                    <tr>
+                        <td>JAMMU & KASHMIR</td>
+                        <td>North</td>
+                        <td>0.4%</td>
+                        <td>0.3%</td>
+                        <td>+0.0%</td>
+                        <td>1.03%</td>
+                        <td>₹56.2</td>
+                        <td>Balanced</td>
+                    </tr>
+                    <tr>
+                        <td>ODISHA</td>
+                        <td>East</td>
+                        <td>0.3%</td>
+                        <td>0.5%</td>
+                        <td>-0.2%</td>
+                        <td>1.82%</td>
+                        <td>₹102.8</td>
+                        <td>Balanced</td>
+                    </tr>
+                    <tr>
+                        <td>HIMACHAL PRADESH</td>
+                        <td>North</td>
+                        <td>0.3%</td>
+                        <td>0.4%</td>
+                        <td>-0.2%</td>
+                        <td>1.96%</td>
+                        <td>₹105.2</td>
+                        <td>Balanced</td>
+                    </tr>
+                </tbody>
+            </table></div>
+
+            <!-- Section 3: City Tier GV Analysis -->
+            <h2 class="section-title">Investment Efficiency Across City Tiers</h2>
+            <div style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <canvas id="tierChart" height="400"></canvas>
+            </div>
+
+            <div class="table-container"><table>
+                <thead>
+                    <tr>
+                        <th>City Tier</th>
+                        <th>GV Share %</th>
+                        <th>Sales Share %</th>
+                        <th>Conv Rate %</th>
+                        <th>Key Insight</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Tier 1</strong></td>
+                        <td>54.7%</td>
+                        <td>46.5%</td>
+                        <td>1.01%</td>
+                        <td>Largest traffic base but lower conversion</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tier 2</strong></td>
+                        <td>20.8%</td>
+                        <td>22.1%</td>
+                        <td>1.29%</td>
+                        <td>Balanced performance, 28% better conversion than Tier 1</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tier 3+</strong></td>
+                        <td>24.5%</td>
+                        <td>31.4%</td>
+                        <td>1.55%</td>
+                        <td>Best converters! 53% better than Tier 1 — buyers are intent-driven</td>
+                    </tr>
+                </tbody>
+            </table></div>
+
+            <!-- Section 4: ASIN GV Scorecard -->
+            <h2 class="section-title">Product Portfolio GV Performance</h2>
+            <div class="table-container"><table>
+                <thead>
+                    <tr>
+                        <th>ASIN</th>
+                        <th>Product</th>
+                        <th>Type</th>
+                        <th>Total iGV</th>
+                        <th>Net Sales ₹</th>
+                        <th>Conv Rate %</th>
+                        <th>₹/GV</th>
+                        <th>Feb GV</th>
+                        <th>Mar GV</th>
+                        <th>Trend %</th>
+                        <th>Flag</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>B0CKHQC9YM</td>
+                        <td>Sujata Powermatic Maxima Juicer Mixer Grinder|900 </td>
+                        <td>Juicer Mixer Grinder</td>
+                        <td>406.1K</td>
+                        <td>₹233.65L</td>
+                        <td>0.84%</td>
+                        <td>₹57.5</td>
+                        <td>221.0K</td>
+                        <td>185.1K</td>
+                        <td style="color: #DC3545; font-weight: 600;">-16.2%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B0DJH2J2FC</td>
+                        <td>Sujata MG03 Mixer Grinder|1000 Watts Double Ball B</td>
+                        <td>Mixer Grinder</td>
+                        <td>271.4K</td>
+                        <td>₹173.07L</td>
+                        <td>0.84%</td>
+                        <td>₹63.8</td>
+                        <td>125.2K</td>
+                        <td>146.2K</td>
+                        <td style="color: #28A745; font-weight: 600;">+16.8%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B07QSBVGFH</td>
+                        <td>Sujata Multimix Juicer Mixer Grinder|900 Watts Dou</td>
+                        <td>Juicer Mixer Grinder</td>
+                        <td>205.7K</td>
+                        <td>₹139.32L</td>
+                        <td>0.86%</td>
+                        <td>₹67.7</td>
+                        <td>102.6K</td>
+                        <td>103.1K</td>
+                        <td style="color: #28A745; font-weight: 600;">+0.5%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B0GCK9N1LH</td>
+                        <td>Sujata Powermatic Pro Juicer|900 WattsPowerfull Mo</td>
+                        <td>Juicer</td>
+                        <td>139.1K</td>
+                        <td>₹78.50L</td>
+                        <td>1.03%</td>
+                        <td>₹56.5</td>
+                        <td>84.0K</td>
+                        <td>55.1K</td>
+                        <td style="color: #DC3545; font-weight: 600;">-34.4%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B075S9FVRY</td>
+                        <td>Sujata Supermix Mixer Grinder|900 Watts Double Bal</td>
+                        <td>Mixer Grinder</td>
+                        <td>120.6K</td>
+                        <td>₹73.79L</td>
+                        <td>1.03%</td>
+                        <td>₹61.2</td>
+                        <td>43.6K</td>
+                        <td>77.0K</td>
+                        <td style="color: #28A745; font-weight: 600;">+76.4%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B0G319JRWC</td>
+                        <td>Sujata Supermix Mixer Grinder | 900 Watts Double B</td>
+                        <td>Mixer Grinder</td>
+                        <td>104.3K</td>
+                        <td>₹85.11L</td>
+                        <td>1.37%</td>
+                        <td>₹81.6</td>
+                        <td>49.5K</td>
+                        <td>54.8K</td>
+                        <td style="color: #28A745; font-weight: 600;">+10.7%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B0G2ZWC2T2</td>
+                        <td>Sujata Dynamix Mixer Grinder|900 Watts Double Ball</td>
+                        <td>Mixer Grinder</td>
+                        <td>93.2K</td>
+                        <td>₹79.81L</td>
+                        <td>1.25%</td>
+                        <td>₹85.6</td>
+                        <td>46.9K</td>
+                        <td>46.3K</td>
+                        <td style="color: #DC3545; font-weight: 600;">-1.4%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B071113J7M</td>
+                        <td>Sujata Powermatic Plus Juicer Mixer Grinder|900 Wa</td>
+                        <td>Juicer Mixer Grinder</td>
+                        <td>92.7K</td>
+                        <td>₹69.73L</td>
+                        <td>1.20%</td>
+                        <td>₹75.2</td>
+                        <td>49.6K</td>
+                        <td>43.1K</td>
+                        <td style="color: #DC3545; font-weight: 600;">-13.0%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B0G319XS3M</td>
+                        <td>Sujata MG03 Mixer Grinder|1000 Watts Double Ball B</td>
+                        <td>Mixer Grinder</td>
+                        <td>84.3K</td>
+                        <td>₹82.27L</td>
+                        <td>1.29%</td>
+                        <td>₹97.6</td>
+                        <td>37.9K</td>
+                        <td>46.4K</td>
+                        <td style="color: #28A745; font-weight: 600;">+22.5%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B00K57MR22</td>
+                        <td>Sujata Dynamix 900 Watts Mixer Grinder | 22000 Rot</td>
+                        <td>Mixer Grinder</td>
+                        <td>83.0K</td>
+                        <td>₹61.07L</td>
+                        <td>1.08%</td>
+                        <td>₹73.5</td>
+                        <td>27.4K</td>
+                        <td>55.6K</td>
+                        <td style="color: #28A745; font-weight: 600;">+103.1%</td>
+                        <td><span style="background: #FF9800; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.75rem; font-weight: 600;">LOW INVEST</span></td>
+                    </tr>
+                    <tr>
+                        <td>B01MUAUOCX</td>
+                        <td>Sujata Chutney Steel Jar  500 ml  (White)  Stainle</td>
+                        <td>No Ads</td>
+                        <td>80.4K</td>
+                        <td>₹13.26L</td>
+                        <td>2.44%</td>
+                        <td>₹16.5</td>
+                        <td>43.3K</td>
+                        <td>37.0K</td>
+                        <td style="color: #DC3545; font-weight: 600;">-14.6%</td>
+                        <td><span style="background: #DC3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.75rem; font-weight: 600;">NO ADS</span></td>
+                    </tr>
+                    <tr>
+                        <td>B0DHH83W5Z</td>
+                        <td>Sujata MG01 Mixer Grinder|1000 Watts Double Ball B</td>
+                        <td>Mixer Grinder</td>
+                        <td>61.2K</td>
+                        <td>₹44.23L</td>
+                        <td>1.15%</td>
+                        <td>₹72.3</td>
+                        <td>26.2K</td>
+                        <td>34.9K</td>
+                        <td style="color: #28A745; font-weight: 600;">+33.0%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B015VCO9QW</td>
+                        <td>Sujata Powermatic Juicer |900 Watts Double Ball Be</td>
+                        <td>Juicer</td>
+                        <td>49.7K</td>
+                        <td>₹25.73L</td>
+                        <td>0.97%</td>
+                        <td>₹51.8</td>
+                        <td>26.6K</td>
+                        <td>23.1K</td>
+                        <td style="color: #DC3545; font-weight: 600;">-13.0%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B01N4T2TPN</td>
+                        <td>Sujata Grinder Steel Jar  1000 ml (White  Stainles</td>
+                        <td>No Ads</td>
+                        <td>43.6K</td>
+                        <td>₹11.56L</td>
+                        <td>2.94%</td>
+                        <td>₹26.5</td>
+                        <td>17.4K</td>
+                        <td>26.2K</td>
+                        <td style="color: #28A745; font-weight: 600;">+50.4%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B010B6AZGQ</td>
+                        <td>Sujata Blender Plastic Jar  1750 ml  (White) (Whit</td>
+                        <td>No Ads</td>
+                        <td>32.8K</td>
+                        <td>₹9.50L</td>
+                        <td>3.08%</td>
+                        <td>₹29.0</td>
+                        <td>13.7K</td>
+                        <td>19.1K</td>
+                        <td style="color: #28A745; font-weight: 600;">+39.3%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B01M27VIEX</td>
+                        <td>Sujata Citromatic Juicer|40 Watts|110 RPM|Direct F</td>
+                        <td>Citrus Juicer</td>
+                        <td>31.1K</td>
+                        <td>₹5.64L</td>
+                        <td>1.11%</td>
+                        <td>₹18.1</td>
+                        <td>12.6K</td>
+                        <td>18.5K</td>
+                        <td style="color: #28A745; font-weight: 600;">+46.5%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B00ENHJS68</td>
+                        <td>Sujata 500ml Stainless Steel Chutney Jar with Lid </td>
+                        <td>No Ads</td>
+                        <td>26.3K</td>
+                        <td>₹4.63L</td>
+                        <td>2.58%</td>
+                        <td>₹17.6</td>
+                        <td>14.0K</td>
+                        <td>12.3K</td>
+                        <td style="color: #DC3545; font-weight: 600;">-12.0%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B0G2ZQD7K3</td>
+                        <td>Sujata MG01 Mixer Grinder | 1000 Watts Double Ball</td>
+                        <td>Mixer Grinder</td>
+                        <td>25.0K</td>
+                        <td>₹24.59L</td>
+                        <td>1.56%</td>
+                        <td>₹98.2</td>
+                        <td>13.3K</td>
+                        <td>11.7K</td>
+                        <td style="color: #DC3545; font-weight: 600;">-12.4%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B08PBWWR9L</td>
+                        <td>Sujata Frootmix Mixer Blender|900 Watts Double Bal</td>
+                        <td>Mixer Blender</td>
+                        <td>22.6K</td>
+                        <td>₹21.38L</td>
+                        <td>1.84%</td>
+                        <td>₹94.7</td>
+                        <td>8.9K</td>
+                        <td>13.7K</td>
+                        <td style="color: #28A745; font-weight: 600;">+53.3%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B0F8N2WVXD</td>
+                        <td>Sujata MG02 Mixer Grinder|1000 Watts Double Ball B</td>
+                        <td>Mixer Grinder</td>
+                        <td>22.0K</td>
+                        <td>₹21.94L</td>
+                        <td>1.43%</td>
+                        <td>₹99.7</td>
+                        <td>12.6K</td>
+                        <td>9.4K</td>
+                        <td style="color: #DC3545; font-weight: 600;">-25.2%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B0G316JR2W</td>
+                        <td>Sujata MG03 Mixer Grinder|1000 Watts Double Ball B</td>
+                        <td>Mixer Grinder</td>
+                        <td>16.8K</td>
+                        <td>₹17.46L</td>
+                        <td>1.37%</td>
+                        <td>₹103.9</td>
+                        <td>9.6K</td>
+                        <td>7.2K</td>
+                        <td style="color: #DC3545; font-weight: 600;">-25.6%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B07D8VBYB4</td>
+                        <td>Sujata Powermatic Plus Juicer Mixer Grinder|900 Wa</td>
+                        <td>No Ads</td>
+                        <td>16.6K</td>
+                        <td>₹15.98L</td>
+                        <td>1.53%</td>
+                        <td>₹96.0</td>
+                        <td>10.4K</td>
+                        <td>6.3K</td>
+                        <td style="color: #DC3545; font-weight: 600;">-39.8%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B0FZMSFZX2</td>
+                        <td>Sujata Cold Pressed Slow Juicer SJ01 | Ideal for F</td>
+                        <td>Cold Press Slow Juicer</td>
+                        <td>16.1K</td>
+                        <td>₹25.55L</td>
+                        <td>0.88%</td>
+                        <td>₹158.4</td>
+                        <td>12.2K</td>
+                        <td>3.9K</td>
+                        <td style="color: #DC3545; font-weight: 600;">-68.1%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B0FZMYMKZV</td>
+                        <td>Sujata Nutromatic 600 Watt Electric Blender | Pers</td>
+                        <td>Personal Blender</td>
+                        <td>15.3K</td>
+                        <td>₹9.00L</td>
+                        <td>1.59%</td>
+                        <td>₹58.7</td>
+                        <td>9.5K</td>
+                        <td>5.9K</td>
+                        <td style="color: #DC3545; font-weight: 600;">-37.8%</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>B0G2ZSYZV9</td>
+                        <td>Sujata MG02 Mixer Grinder|1000 Watts Double Ball B</td>
+                        <td>Mixer Grinder</td>
+                        <td>11.3K</td>
+                        <td>₹13.56L</td>
+                        <td>1.72%</td>
+                        <td>₹120.1</td>
+                        <td>3.8K</td>
+                        <td>7.5K</td>
+                        <td style="color: #28A745; font-weight: 600;">+98.0%</td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table></div>
+
+            <!-- Section 5: Feb → Mar GV Trend -->
+            <h2 class="section-title">New Launch Traffic Momentum</h2>
+            <div style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <canvas id="gvTrendChart" height="400"></canvas>
+            </div>
+
+            <!-- Section 6: Investment Efficiency -->
+            <h2 class="section-title">Ad Spend Efficiency — Strategic Investment Opportunities</h2>
+            <div style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <canvas id="spendPerGVChart" height="400"></canvas>
+            </div>
+
+            <div class="tab-footer">
+                <span class="tab-footer-text">Sujata JMG — Amazon Performance Audit | AMS + Pi + BA | 5 Feb – 26 Mar 2026 | 49 Days</span>
+                <img src="data:image/png;base64,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" style="height:26px;">
+            </div>
+        </div>
+    </div>
+
         <div id="glossary" class="tab-pane">
             <h2 class="section-title">Data Sources & Attribution</h2>
-            <table>
+            <div class="table-container"><table>
                 <thead>
                     <tr>
                         <th>Data Source</th>
@@ -1942,7 +2707,7 @@
                         <td>₹5.79 Cr (note: 2.4% variance from consolidated figure due to attribution window updates).</td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
 
             <h2 class="section-title">Comprehensive Glossary</h2>
             <div class="glossary" style="border: none; background: none; padding: 0;">
@@ -2133,7 +2898,7 @@
             </div>
 
             <h2 class="section-title">FAQ & Common Pitfalls</h2>
-            <table>
+            <div class="table-container"><table>
                 <thead>
                     <tr>
                         <th>Question</th>
@@ -2174,10 +2939,10 @@
                         <td>SP (Sponsored Products) = search ads, main revenue driver. SB (Sponsored Brands) = header ads, brand builder. Both PPC. SB typically has higher Ad-ROAS but lower volume.</td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
 
             <h2 class="section-title">Performance Benchmarks (Industry Standards)</h2>
-            <table>
+            <div class="table-container"><table>
                 <thead>
                     <tr>
                         <th>Metric</th>
@@ -2254,7 +3019,7 @@
                         <td>Healthy</td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
 
             <div class="glossary">
                 <div class="glossary-title" onclick="toggleGlossary(this)">ⓘ How to Use This Tab</div>
@@ -2591,6 +3356,206 @@
                 }
             });
         }
+    </script>
+
+    <script>
+        // Chart 1: GV Share vs Sales Share Scatter
+        const scatterCanvas = document.getElementById('gvSalesScatter');
+        if (scatterCanvas) {
+            const scatterCtx = scatterCanvas.getContext('2d');
+            
+            const stateData = [{"x": 50.0, "y": 50.0, "name": "TOTAL"}, {"x": 6.5, "y": 5.6, "name": "UTTAR PRADESH"}, {"x": 5.8, "y": 5.4, "name": "KARNATAKA"}, {"x": 5.6, "y": 4.1, "name": "DELHI"}, {"x": 5.5, "y": 5.0, "name": "TELANGANA"}, {"x": 4.5, "y": 5.1, "name": "MAHARASHTRA"}, {"x": 4.0, "y": 3.0, "name": "HARYANA"}, {"x": 2.5, "y": 3.2, "name": "TAMIL NADU"}, {"x": 2.5, "y": 2.2, "name": "RAJASTHAN"}, {"x": 2.3, "y": 2.9, "name": "KERALA"}, {"x": 1.9, "y": 2.6, "name": "ANDHRA PRADESH"}, {"x": 1.4, "y": 1.5, "name": "MADHYA PRADESH"}, {"x": 1.3, "y": 1.4, "name": "PUNJAB"}, {"x": 1.2, "y": 1.6, "name": "BIHAR"}, {"x": 1.1, "y": 1.5, "name": "GUJARAT"}, {"x": 0.9, "y": 0.7, "name": "UTTARAKHAND"}, {"x": 0.8, "y": 1.2, "name": "WEST BENGAL"}, {"x": 0.4, "y": 0.3, "name": "JAMMU & KASHMIR"}, {"x": 0.3, "y": 0.5, "name": "ODISHA"}, {"x": 0.3, "y": 0.4, "name": "HIMACHAL PRADESH"}];
+            
+            new Chart(scatterCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'State Performance',
+                        data: stateData,
+                        backgroundColor: 'rgba(28,191,187,0.7)',
+                        borderColor: '#1CBFBB',
+                        borderWidth: 2,
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: true, position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const point = stateData[context.dataIndex];
+                                    return point.name + ': GV ' + point.x.toFixed(1) + '%, Sales ' + point.y.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'GV Share %' },
+                            grid: { color: '#F0F0F0' }
+                        },
+                        y: {
+                            title: { display: true, text: 'Sales Share %' },
+                            grid: { color: '#F0F0F0' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart 2: Tier Comparison
+        const tierCanvas = document.getElementById('tierChart');
+        if (tierCanvas) {
+            const tierCtx = tierCanvas.getContext('2d');
+            
+            new Chart(tierCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Tier 1', 'Tier 2', 'Tier 3+'],
+                    datasets: [
+                        {
+                            label: 'GV Share %',
+                            data: [54.7, 20.8, 24.5],
+                            backgroundColor: 'rgba(28,191,187,0.7)',
+                            borderColor: '#1CBFBB',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Sales Share %',
+                            data: [46.5, 22.1, 31.4],
+                            backgroundColor: 'rgba(54,162,235,0.7)',
+                            borderColor: '#2196F3',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: true, position: 'bottom' }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: '#F0F0F0' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart 3: GV Trend Feb vs Mar (top 10 products)
+        const trendCanvas = document.getElementById('gvTrendChart');
+        if (trendCanvas) {
+            const trendCtx = trendCanvas.getContext('2d');
+            const topAsins = [{"name": "Sujata Powermatic Maxima Juice", "feb": 220993.91999999716, "mar": 185135.99999999735}, {"name": "Sujata MG03 Mixer Grinder|1000", "feb": 125187.19999999952, "mar": 146215.67999999897}, {"name": "Sujata Multimix Juicer Mixer G", "feb": 102636.79999999964, "mar": 103100.79999999952}, {"name": "Sujata Powermatic Pro Juicer|9", "feb": 83965.43999999992, "mar": 55086.080000000096}, {"name": "Sujata Supermix Mixer Grinder|", "feb": 43634.56000000007, "mar": 76986.87999999992}, {"name": "Sujata Supermix Mixer Grinder ", "feb": 49480.96000000012, "mar": 54789.12000000009}, {"name": "Sujata Dynamix Mixer Grinder|9", "feb": 46919.68000000008, "mar": 46270.08000000007}, {"name": "Sujata Powermatic Plus Juicer ", "feb": 49592.320000000065, "mar": 43133.44000000004}, {"name": "Sujata MG03 Mixer Grinder|1000", "feb": 37880.96000000011, "mar": 46400.00000000009}, {"name": "Sujata Dynamix 900 Watts Mixer", "feb": 27394.560000000012, "mar": 55642.88000000004}];
+            
+            new Chart(trendCtx, {
+                type: 'bar',
+                data: {
+                    labels: topAsins.map(a => a.name),
+                    datasets: [
+                        {
+                            label: 'Feb GV',
+                            data: topAsins.map(a => a.feb),
+                            backgroundColor: 'rgba(220,53,69,0.7)',
+                            borderColor: '#DC3545',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Mar GV',
+                            data: topAsins.map(a => a.mar),
+                            backgroundColor: 'rgba(40,167,69,0.7)',
+                            borderColor: '#28A745',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: true, position: 'bottom' }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: '#F0F0F0' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart 4: Ad Spend per GV
+        const spendCanvas = document.getElementById('spendPerGVChart');
+        if (spendCanvas) {
+            const spendCtx = spendCanvas.getContext('2d');
+            const spendData = [{"name": "Sujata Powermatic Maxima Juice", "spend": 0.6100971826946412}, {"name": "Sujata MG03 Mixer Grinder|1000", "spend": 0.9606852542242734}, {"name": "Sujata Multimix Juicer Mixer G", "spend": 1.435172520725429}, {"name": "Sujata Powermatic Pro Juicer|9", "spend": 1.219272252471602}, {"name": "Sujata Supermix Mixer Grinder|", "spend": 0.9603032429392321}, {"name": "Sujata Supermix Mixer Grinder ", "spend": 1.2879022438651626}, {"name": "Sujata Dynamix Mixer Grinder|9", "spend": 1.191545079631067}, {"name": "Sujata Powermatic Plus Juicer ", "spend": 1.5714231945901551}, {"name": "Sujata MG03 Mixer Grinder|1000", "spend": 0.729006894202439}, {"name": "Sujata Dynamix 900 Watts Mixer", "spend": 0.4217857631449139}, {"name": "Sujata Chutney Steel Jar  500 ", "spend": 0.0}, {"name": "Sujata MG01 Mixer Grinder|1000", "spend": 0.8961596070325991}, {"name": "Sujata Powermatic Juicer |900 ", "spend": 0.9916020302722052}, {"name": "Sujata Grinder Steel Jar  1000", "spend": 0.0}, {"name": "Sujata Blender Plastic Jar  17", "spend": 0.0}];
+            
+            new Chart(spendCtx, {
+                type: 'bar',
+                data: {
+                    labels: spendData.map(a => a.name),
+                    datasets: [{
+                        label: '₹ per GV',
+                        data: spendData.map(a => a.spend),
+                        backgroundColor: spendData.map(a =>
+                            a.spend > 1 ? 'rgba(40,167,69,0.7)' :
+                            a.spend > 0.5 ? 'rgba(255,152,0,0.7)' :
+                            'rgba(220,53,69,0.7)'
+                        ),
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: '#F0F0F0' }
+                        }
+                    }
+                }
+            });
+        }
+    
+    function addDataBars() {
+        document.querySelectorAll('table').forEach(table => {
+            const headers = Array.from(table.querySelectorAll('th'));
+            const salesIdx = headers.findIndex(h => {
+                const t = h.textContent.trim().toLowerCase();
+                return t.includes('retail sales') || t.includes('net sales') || t === 'sales';
+            });
+            if (salesIdx === -1) return;
+            const rows = table.querySelectorAll('tbody tr');
+            let maxVal = 0;
+            const vals = [];
+            rows.forEach(row => {
+                const cell = row.cells[salesIdx];
+                if (!cell) return;
+                const num = parseFloat(cell.textContent.replace(/[₹,KMCrL%]/g, '').trim());
+                vals.push({cell, num: isNaN(num) ? 0 : num});
+                if (!isNaN(num) && num > maxVal) maxVal = num;
+            });
+            vals.forEach(({cell, num}) => {
+                if (maxVal > 0 && num > 0) {
+                    const pct = (num / maxVal * 100).toFixed(1);
+                    cell.style.background = `linear-gradient(90deg, rgba(28,191,187,0.12) ${pct}%, transparent ${pct}%)`;
+                }
+            });
+        });
+    }
+
+    // Call addDataBars when DOM is ready
+    document.addEventListener('DOMContentLoaded', addDataBars);
+
     </script>
 </body>
 </html>
