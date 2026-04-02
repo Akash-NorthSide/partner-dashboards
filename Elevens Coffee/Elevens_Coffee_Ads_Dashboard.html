@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elevens Coffee — Advertising Performance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<style>
+:root {
+    --primary: #1CBFBB;
+    --primary-dark: #17A09D;
+    --primary-light: rgba(28,191,187,0.08);
+    --primary-glow: rgba(28,191,187,0.15);
+    --near-black: #020202;
+    --slate: #64748B;
+    --mid-grey: #666666;
+    --border: #E2E8F0;
+    --row-sep: #F1F5F9;
+    --bg: #F8FAFC;
+    --card-bg: #FFFFFF;
+    --green: #16A34A;
+    --green-bg: rgba(22,163,74,0.08);
+    --amber: #D97706;
+    --amber-bg: rgba(217,119,6,0.08);
+    --red: #DC2626;
+    --red-bg: rgba(220,38,38,0.08);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    --radius: 10px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--near-black);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+.container { max-width:1440px; margin:0 auto; padding:24px 32px; }
+
+/* === HEADER === */
+.header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 28px; margin-bottom:24px;
+    background:linear-gradient(135deg, var(--near-black) 0%, #1a2332 100%);
+    border-radius:var(--radius); color:#fff;
+}
+.header-left { display:flex; align-items:center; gap:16px; }
+.header-logo {
+    width:44px; height:44px; border-radius:8px;
+    background:var(--primary); display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:18px; color:#fff; letter-spacing:-0.5px;
+}
+.header h1 { font-size:22px; font-weight:700; letter-spacing:-0.3px; }
+.header-sub { font-size:13px; color:rgba(255,255,255,0.6); margin-top:2px; }
+.header-badge {
+    background:var(--primary); color:#fff; padding:6px 14px;
+    border-radius:20px; font-size:12px; font-weight:600; letter-spacing:0.3px;
+}
+
+/* === GLOBAL MONTH FILTER === */
+.filter-bar {
+    display:flex; align-items:center; gap:12px; padding:14px 20px;
+    background:var(--card-bg); border:1px solid var(--border);
+    border-radius:var(--radius); margin-bottom:20px; box-shadow:var(--shadow-sm);
+    flex-wrap:wrap;
+}
+.filter-bar label {
+    font-size:13px; font-weight:600; color:var(--slate); text-transform:uppercase; letter-spacing:0.5px;
+}
+.month-chip {
+    padding:6px 14px; border-radius:20px; font-size:13px; font-weight:500;
+    border:1px solid var(--border); background:var(--card-bg); color:var(--slate);
+    cursor:pointer; transition:all 0.2s; user-select:none;
+}
+.month-chip:hover { border-color:var(--primary); color:var(--primary); }
+.month-chip.active {
+    background:var(--primary); color:#fff; border-color:var(--primary);
+    box-shadow:0 2px 8px rgba(28,191,187,0.3);
+}
+
+/* === TABS === */
+.tabs {
+    display:flex; gap:4px; margin-bottom:24px;
+    background:var(--card-bg); border-radius:var(--radius);
+    padding:4px; border:1px solid var(--border); box-shadow:var(--shadow-sm);
+}
+.tab-btn {
+    flex:1; padding:10px 16px; border:none; background:transparent;
+    cursor:pointer; font-size:14px; font-weight:500; color:var(--slate);
+    border-radius:8px; transition:all 0.25s; font-family:inherit;
+}
+.tab-btn:hover { color:var(--near-black); background:var(--row-sep); }
+.tab-btn.active {
+    background:var(--primary); color:#fff; box-shadow:0 2px 8px rgba(28,191,187,0.3);
+}
+
+/* === KPI CARDS === */
+.kpi-grid {
+    display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px;
+}
+.kpi-card {
+    background:var(--card-bg); border:1px solid var(--border);
+    border-radius:var(--radius); padding:20px 24px;
+    box-shadow:var(--shadow-sm); transition:all 0.25s; position:relative; overflow:hidden;
+}
+.kpi-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background:var(--primary); border-radius:var(--radius) var(--radius) 0 0;
+}
+.kpi-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); }
+.kpi-label {
+    font-size:11px; font-weight:600; color:var(--slate);
+    text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;
+}
+.kpi-value { font-size:26px; font-weight:700; color:var(--near-black); margin-bottom:4px; }
+.kpi-sub { font-size:12px; color:var(--slate); }
+.kpi-change { font-size:12px; font-weight:600; margin-top:6px; }
+.kpi-change.up { color:var(--green); }
+.kpi-change.down { color:var(--red); }
+
+/* === CHART CARDS === */
+.chart-card {
+    background:var(--card-bg); border:1px solid var(--border);
+    border-radius:var(--radius); padding:24px;
+    box-shadow:var(--shadow-sm); margin-bottom:24px;
+}
+.chart-card-title {
+    font-size:15px; font-weight:600; color:var(--near-black); margin-bottom:16px;
+    padding-bottom:12px; border-bottom:1px solid var(--row-sep);
+}
+.chart-wrap { position:relative; height:380px; }
+
+/* === TABLES === */
+.table-card {
+    background:var(--card-bg); border:1px solid var(--border);
+    border-radius:var(--radius); box-shadow:var(--shadow-sm);
+    margin-bottom:24px; overflow:hidden;
+}
+.table-card-title {
+    font-size:15px; font-weight:600; color:var(--near-black);
+    padding:16px 20px; border-bottom:1px solid var(--border);
+}
+table { width:100%; border-collapse:collapse; font-size:13px; }
+thead { background:#F8FAFC; }
+th {
+    padding:10px 14px; text-align:left; font-weight:600; font-size:11px;
+    color:var(--slate); text-transform:uppercase; letter-spacing:0.5px;
+    border-bottom:2px solid var(--border);
+}
+td { padding:9px 14px; border-bottom:1px solid var(--row-sep); }
+.text-right { text-align:right; }
+.metric { font-variant-numeric:tabular-nums; font-weight:500; }
+tr.row-sp { border-left:3px solid var(--primary); }
+tr.row-sd { border-left:3px solid #FF9800; }
+tr.row-sb { border-left:3px solid #7C3AED; }
+tr.row-header { background:#F8FAFC; font-weight:600; }
+tr.row-header td { color:var(--slate); font-size:12px; text-transform:uppercase; letter-spacing:0.3px; }
+tr.row-total { background:#F1F5F9; font-weight:700; }
+tr.row-total td { border-top:2px solid var(--border); border-bottom:2px solid var(--border); }
+tr.row-grand { background:linear-gradient(90deg, var(--primary-light), transparent); font-weight:700; }
+tr.row-grand td { border-top:2px solid var(--primary); font-size:13.5px; }
+tbody tr:hover { background:var(--primary-light); }
+
+/* ROAS Badges */
+.roas-badge {
+    display:inline-block; padding:2px 8px; border-radius:4px; font-weight:600; font-size:12px;
+}
+.roas-high { background:var(--green-bg); color:var(--green); }
+.roas-mid { background:var(--amber-bg); color:var(--amber); }
+.roas-low { background:var(--red-bg); color:var(--red); }
+
+/* Tab content */
+.tab-pane { display:none; }
+.tab-pane.active { display:block; }
+
+/* === FOOTER === */
+.footer-bar {
+    background:linear-gradient(135deg, var(--near-black), #1a2332);
+    color:rgba(255,255,255,0.7); padding:14px 24px; text-align:center;
+    font-size:12px; border-radius:var(--radius); margin-top:32px;
+}
+.footer-bar span { color:var(--primary); font-weight:600; }
+
+/* Two-col layout */
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+
+/* Ad type pill */
+.ad-pill {
+    display:inline-block; padding:3px 10px; border-radius:12px;
+    font-size:11px; font-weight:600; letter-spacing:0.3px;
+}
+.ad-pill.sp { background:rgba(28,191,187,0.12); color:#17A09D; }
+.ad-pill.sd { background:rgba(255,152,0,0.12); color:#E68A00; }
+.ad-pill.sb { background:rgba(124,58,237,0.12); color:#7C3AED; }
+
+@media (max-width:1024px) {
+    .kpi-grid { grid-template-columns:repeat(2,1fr); }
+    .grid-2 { grid-template-columns:1fr; }
+}
+@media (max-width:640px) {
+    .kpi-grid { grid-template-columns:1fr; }
+    .container { padding:16px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+    <div class="header-left">
+        <div class="header-logo">EC</div>
+        <div>
+            <h1>Elevens Coffee</h1>
+            <div class="header-sub">Amazon Advertising Performance Dashboard</div>
+        </div>
+    </div>
+    <div class="header-badge">Jun 2025 — Mar 2026</div>
+</div>
+
+<!-- GLOBAL MONTH FILTER -->
+<div class="filter-bar" id="filter-bar">
+    <label>Period:</label>
+    <!-- chips populated by JS -->
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+    <button class="tab-btn active" data-tab="summary">Overview</button>
+    <button class="tab-btn" data-tab="monthly">Monthly Detail</button>
+    <button class="tab-btn" data-tab="adtype">Ad Type Comparison</button>
+    <button class="tab-btn" data-tab="targeting">Targeting Analysis</button>
+</div>
+
+<!-- ====== SUMMARY TAB ====== -->
+<div class="tab-pane active" id="tab-summary">
+    <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Total Spend</div><div class="kpi-value" id="k-spend">—</div><div class="kpi-sub">Across all campaigns</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Sales</div><div class="kpi-value" id="k-sales">—</div><div class="kpi-sub">14-day attributed revenue</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Units</div><div class="kpi-value" id="k-units">—</div><div class="kpi-sub">Products sold via ads</div></div>
+        <div class="kpi-card"><div class="kpi-label">Overall ROAS</div><div class="kpi-value" id="k-roas">—</div><div class="kpi-sub">Sales / Spend</div></div>
+    </div>
+
+    <div class="grid-2">
+        <div class="chart-card">
+            <div class="chart-card-title">Spend vs Sales Trend</div>
+            <div class="chart-wrap"><canvas id="chartTrend"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-card-title">ROAS Trend</div>
+            <div class="chart-wrap"><canvas id="chartRoas"></canvas></div>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="table-card-title">Monthly Performance Summary</div>
+        <table>
+            <thead><tr>
+                <th>Month</th><th class="text-right">Impressions</th><th class="text-right">Clicks</th>
+                <th class="text-right">Spend</th><th class="text-right">Units</th><th class="text-right">Sales</th>
+                <th class="text-right">CTR</th><th class="text-right">CPC</th><th class="text-right">ROAS</th>
+            </tr></thead>
+            <tbody id="tbl-summary"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ====== MONTHLY DETAIL TAB ====== -->
+<div class="tab-pane" id="tab-monthly">
+    <div class="table-card">
+        <div class="table-card-title">Targeting Breakdown by Ad Type</div>
+        <table>
+            <thead><tr>
+                <th>Ad Type / Targeting</th><th class="text-right">Impressions</th><th class="text-right">Clicks</th>
+                <th class="text-right">Spend</th><th class="text-right">Units</th><th class="text-right">Sales</th>
+                <th class="text-right">CTR</th><th class="text-right">COV</th><th class="text-right">CPC</th><th class="text-right">ROAS</th>
+            </tr></thead>
+            <tbody id="tbl-detail"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ====== AD TYPE TAB ====== -->
+<div class="tab-pane" id="tab-adtype">
+    <div class="kpi-grid" id="adtype-kpis"></div>
+    <div class="chart-card">
+        <div class="chart-card-title">Spend by Ad Type (Monthly)</div>
+        <div class="chart-wrap"><canvas id="chartAdtype"></canvas></div>
+    </div>
+    <div class="table-card">
+        <div class="table-card-title">Ad Type Performance</div>
+        <table>
+            <thead><tr>
+                <th>Ad Type</th><th class="text-right">Impressions</th><th class="text-right">Clicks</th>
+                <th class="text-right">Spend</th><th class="text-right">Units</th><th class="text-right">Sales</th>
+                <th class="text-right">CTR</th><th class="text-right">CPC</th><th class="text-right">ROAS</th>
+            </tr></thead>
+            <tbody id="tbl-adtype"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ====== TARGETING TAB ====== -->
+<div class="tab-pane" id="tab-targeting">
+    <div class="grid-2">
+        <div class="chart-card">
+            <div class="chart-card-title">Spend by Targeting Type</div>
+            <div class="chart-wrap"><canvas id="chartTgtSpend"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-card-title">ROAS by Targeting Type</div>
+            <div class="chart-wrap"><canvas id="chartTgtRoas"></canvas></div>
+        </div>
+    </div>
+    <div class="table-card">
+        <div class="table-card-title">Targeting Type Performance</div>
+        <table>
+            <thead><tr>
+                <th>Targeting Type</th><th class="text-right">Impressions</th><th class="text-right">Clicks</th>
+                <th class="text-right">Spend</th><th class="text-right">Units</th><th class="text-right">Sales</th>
+                <th class="text-right">CTR</th><th class="text-right">CPC</th><th class="text-right">ROAS</th>
+            </tr></thead>
+            <tbody id="tbl-targeting"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer-bar">
+    <span>Elevens Coffee</span> — Amazon Advertising Performance | Jun 2025 – Mar 2026 | Prepared by <span>NorthSide</span>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ========== DATA ==========
+const MONTHS = ["2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03"];
+const monthlySummary = [{"Month_str": "2025-06", "Spend": 13200.42516, "Sales": 30380.88, "Units": 33.0, "Impressions": 235605.0, "Clicks": 469.0, "ROAS": 2.3015076887114443}, {"Month_str": "2025-07", "Spend": 149293.32493, "Sales": 221583.81999999998, "Units": 288.0, "Impressions": 2153591.0, "Clicks": 3483.0, "ROAS": 1.4842178650913913}, {"Month_str": "2025-08", "Spend": 146141.00193, "Sales": 135246.07, "Units": 184.0, "Impressions": 1179251.0, "Clicks": 2259.0, "ROAS": 0.9254491772595171}, {"Month_str": "2025-09", "Spend": 139788.87697, "Sales": 136765.21, "Units": 174.0, "Impressions": 895981.0, "Clicks": 2083.0, "ROAS": 0.9783697599155265}, {"Month_str": "2025-10", "Spend": 438878.45398, "Sales": 515463.84, "Units": 634.0, "Impressions": 3811797.0, "Clicks": 8896.0, "ROAS": 1.174502496819974}, {"Month_str": "2025-11", "Spend": 298742.73248, "Sales": 251372.74, "Units": 369.0, "Impressions": 2662086.0, "Clicks": 5385.0, "ROAS": 0.8414354984077436}, {"Month_str": "2025-12", "Spend": 187482.96365, "Sales": 175746.24, "Units": 240.0, "Impressions": 885976.0, "Clicks": 2240.0, "ROAS": 0.9373984525233421}, {"Month_str": "2026-01", "Spend": 362911.10817, "Sales": 309049.8, "Units": 472.0, "Impressions": 1840415.0, "Clicks": 4280.0, "ROAS": 0.8515853966509905}, {"Month_str": "2026-02", "Spend": 339435.7689, "Sales": 233642.30000000002, "Units": 359.0, "Impressions": 1699114.0, "Clicks": 3674.0, "ROAS": 0.6883255137110567}, {"Month_str": "2026-03", "Spend": 434830.1799, "Sales": 544860.75, "Units": 666.0, "Impressions": 2250702.0, "Clicks": 4676.0, "ROAS": 1.253042624882441}];
+const detailRows = [{"Month_str": "2025-06", "Ad_Type": "SD", "Targeting_Group": "NA", "Targeting_Type": "NA", "Impressions": 0.0, "Clicks": 0.0, "Spend": 0.0, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-06", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 6310.0, "Clicks": 3.0, "Spend": 573.84455, "Units": 15.0, "Sales": 12080.93}, {"Month_str": "2025-06", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 4908.0, "Clicks": 3.0, "Spend": 499.20252, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-06", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Purchases", "Impressions": 2758.0, "Clicks": 5.0, "Spend": 232.82194, "Units": 2.0, "Sales": 4619.04}, {"Month_str": "2025-06", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Views", "Impressions": 34917.0, "Clicks": 121.0, "Spend": 2482.73615, "Units": 3.0, "Sales": 3376.19}, {"Month_str": "2025-06", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Close Match", "Impressions": 32302.0, "Clicks": 55.0, "Spend": 1359.64, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-06", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Complements", "Impressions": 10623.0, "Clicks": 16.0, "Spend": 385.14, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-06", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Loose Match", "Impressions": 7363.0, "Clicks": 36.0, "Spend": 824.54, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-06", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Substitutes", "Impressions": 161.0, "Clicks": 0.0, "Spend": 0.0, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-06", "Ad_Type": "SP", "Targeting_Group": "Category", "Targeting_Type": "Category", "Impressions": 98008.0, "Clicks": 110.0, "Spend": 2314.11, "Units": 1.0, "Sales": 533.33}, {"Month_str": "2025-06", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 267.0, "Clicks": 17.0, "Spend": 140.01000000000002, "Units": 4.0, "Sales": 3376.1800000000003}, {"Month_str": "2025-06", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG1", "Impressions": 10882.0, "Clicks": 23.0, "Spend": 1987.4, "Units": 4.0, "Sales": 2133.32}, {"Month_str": "2025-06", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG2", "Impressions": 621.0, "Clicks": 0.0, "Spend": 0.0, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-06", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG3", "Impressions": 203.0, "Clicks": 0.0, "Spend": 0.0, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-06", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG4", "Impressions": 2556.0, "Clicks": 4.0, "Spend": 63.02, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-06", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 4249.0, "Clicks": 33.0, "Spend": 1047.56, "Units": 4.0, "Sales": 4261.889999999999}, {"Month_str": "2025-06", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 19477.0, "Clicks": 43.0, "Spend": 1290.4, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-07", "Ad_Type": "SD", "Targeting_Group": "Category", "Targeting_Type": "Category", "Impressions": 110738.0, "Clicks": 104.0, "Spend": 10140.78651, "Units": 3.0, "Sales": 3038.1}, {"Month_str": "2025-07", "Ad_Type": "SD", "Targeting_Group": "NA", "Targeting_Type": "NA", "Impressions": 0.0, "Clicks": 0.0, "Spend": 0.0, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-07", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 52610.0, "Clicks": 37.0, "Spend": 6079.43571, "Units": 93.0, "Sales": 64532.43}, {"Month_str": "2025-07", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 6433.0, "Clicks": 8.0, "Spend": 670.57223, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-07", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Purchases", "Impressions": 11147.0, "Clicks": 5.0, "Spend": 864.0727499999999, "Units": 3.0, "Sales": 3356.2}, {"Month_str": "2025-07", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Views", "Impressions": 288129.0, "Clicks": 620.0, "Spend": 29651.28773, "Units": 33.0, "Sales": 24289.92}, {"Month_str": "2025-07", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Close Match", "Impressions": 38582.0, "Clicks": 33.0, "Spend": 526.36, "Units": 1.0, "Sales": 2078.1}, {"Month_str": "2025-07", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Complements", "Impressions": 41044.0, "Clicks": 56.0, "Spend": 1003.2999999999998, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-07", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Loose Match", "Impressions": 11781.0, "Clicks": 35.0, "Spend": 587.21, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-07", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Substitutes", "Impressions": 89418.0, "Clicks": 119.0, "Spend": 2055.3099999999995, "Units": 1.0, "Sales": 480.0}, {"Month_str": "2025-07", "Ad_Type": "SP", "Targeting_Group": "Category", "Targeting_Type": "Category", "Impressions": 750561.0, "Clicks": 949.0, "Spend": 18368.79, "Units": 17.0, "Sales": 11689.35}, {"Month_str": "2025-07", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 1404.0, "Clicks": 57.0, "Spend": 648.6700000000001, "Units": 18.0, "Sales": 10904.57}, {"Month_str": "2025-07", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG1", "Impressions": 205008.0, "Clicks": 425.0, "Spend": 45616.189999999995, "Units": 29.0, "Sales": 27425.6}, {"Month_str": "2025-07", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG2", "Impressions": 119854.0, "Clicks": 120.0, "Spend": 4360.98, "Units": 1.0, "Sales": 480.0}, {"Month_str": "2025-07", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG3", "Impressions": 17958.0, "Clicks": 36.0, "Spend": 1702.59, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-07", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG4", "Impressions": 75404.0, "Clicks": 93.0, "Spend": 3675.77, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-07", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 32459.0, "Clicks": 341.0, "Spend": 10293.3, "Units": 82.0, "Sales": 67960.98}, {"Month_str": "2025-07", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 301061.0, "Clicks": 445.0, "Spend": 13048.699999999999, "Units": 7.0, "Sales": 5348.57}, {"Month_str": "2025-08", "Ad_Type": "SD", "Targeting_Group": "Category", "Targeting_Type": "Category", "Impressions": 75108.0, "Clicks": 55.0, "Spend": 5144.328169999999, "Units": 1.0, "Sales": 456.0}, {"Month_str": "2025-08", "Ad_Type": "SD", "Targeting_Group": "NA", "Targeting_Type": "NA", "Impressions": 0.0, "Clicks": 0.0, "Spend": 0.0, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-08", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 30434.0, "Clicks": 18.0, "Spend": 3556.2872899999993, "Units": 28.0, "Sales": 17886.050000000003}, {"Month_str": "2025-08", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 33660.0, "Clicks": 33.0, "Spend": 4852.42921, "Units": 8.0, "Sales": 4031.67}, {"Month_str": "2025-08", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Purchases", "Impressions": 34687.0, "Clicks": 43.0, "Spend": 4389.6025, "Units": 29.0, "Sales": 24805.989999999998}, {"Month_str": "2025-08", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Views", "Impressions": 219908.0, "Clicks": 482.0, "Spend": 26083.384760000004, "Units": 18.0, "Sales": 12314.190000000004}, {"Month_str": "2025-08", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Close Match", "Impressions": 2711.0, "Clicks": 10.0, "Spend": 108.26, "Units": 1.0, "Sales": 1975.24}, {"Month_str": "2025-08", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Complements", "Impressions": 2948.0, "Clicks": 4.0, "Spend": 44.150000000000006, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-08", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Loose Match", "Impressions": 5795.0, "Clicks": 17.0, "Spend": 216.45, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-08", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Substitutes", "Impressions": 23814.0, "Clicks": 88.0, "Spend": 989.7300000000002, "Units": 1.0, "Sales": 606.67}, {"Month_str": "2025-08", "Ad_Type": "SP", "Targeting_Group": "Category", "Targeting_Type": "Category", "Impressions": 222415.0, "Clicks": 548.0, "Spend": 11476.87, "Units": 6.0, "Sales": 5195.26}, {"Month_str": "2025-08", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 1846.0, "Clicks": 34.0, "Spend": 838.05, "Units": 19.0, "Sales": 16034.32}, {"Month_str": "2025-08", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG1", "Impressions": 231270.0, "Clicks": 365.0, "Spend": 64492.81000000001, "Units": 42.0, "Sales": 31162.72}, {"Month_str": "2025-08", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG2", "Impressions": 106891.0, "Clicks": 114.0, "Spend": 3038.3799999999997, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-08", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 38508.0, "Clicks": 183.0, "Spend": 13695.21, "Units": 27.0, "Sales": 18953.2}, {"Month_str": "2025-08", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 149256.0, "Clicks": 265.0, "Spend": 7215.0599999999995, "Units": 4.0, "Sales": 1824.76}, {"Month_str": "2025-09", "Ad_Type": "SB", "Targeting_Group": "Category", "Targeting_Type": "Category", "Impressions": 160667.0, "Clicks": 376.0, "Spend": 18054.09, "Units": 6.0, "Sales": 6095.249999999999}, {"Month_str": "2025-09", "Ad_Type": "SB", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 23588.0, "Clicks": 52.0, "Spend": 5609.76817, "Units": 4.0, "Sales": 3343.81}, {"Month_str": "2025-09", "Ad_Type": "SB", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 9883.0, "Clicks": 36.0, "Spend": 3604.8599999999997, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-09", "Ad_Type": "SB", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 57363.0, "Clicks": 175.0, "Spend": 10906.34, "Units": 1.0, "Sales": 506.67}, {"Month_str": "2025-09", "Ad_Type": "SD", "Targeting_Group": "Category", "Targeting_Type": "Category", "Impressions": 8843.0, "Clicks": 8.0, "Spend": 656.10186, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-09", "Ad_Type": "SD", "Targeting_Group": "NA", "Targeting_Type": "NA", "Impressions": 0.0, "Clicks": 0.0, "Spend": 0.0, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-09", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 6370.0, "Clicks": 5.0, "Spend": 1083.90701, "Units": 19.0, "Sales": 12005.63}, {"Month_str": "2025-09", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 56023.0, "Clicks": 119.0, "Spend": 5442.22891, "Units": 7.0, "Sales": 5013.34}, {"Month_str": "2025-09", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Purchases", "Impressions": 45527.0, "Clicks": 96.0, "Spend": 3949.81122, "Units": 23.0, "Sales": 15498.98}, {"Month_str": "2025-09", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Views", "Impressions": 96676.0, "Clicks": 290.0, "Spend": 7429.609799999999, "Units": 7.0, "Sales": 3343.81}, {"Month_str": "2025-09", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Close Match", "Impressions": 7361.0, "Clicks": 12.0, "Spend": 159.92000000000002, "Units": 6.0, "Sales": 2737.14}, {"Month_str": "2025-09", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Complements", "Impressions": 2070.0, "Clicks": 3.0, "Spend": 40.85, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-09", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Loose Match", "Impressions": 5757.0, "Clicks": 14.0, "Spend": 180.29000000000002, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-09", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Substitutes", "Impressions": 19512.0, "Clicks": 39.0, "Spend": 481.03999999999996, "Units": 1.0, "Sales": 456.19}, {"Month_str": "2025-09", "Ad_Type": "SP", "Targeting_Group": "Category", "Targeting_Type": "Category", "Impressions": 5135.0, "Clicks": 16.0, "Spend": 516.9200000000001, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-09", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 38878.0, "Clicks": 154.0, "Spend": 13411.83, "Units": 60.0, "Sales": 66438.23999999999}, {"Month_str": "2025-09", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG1", "Impressions": 260166.0, "Clicks": 483.0, "Spend": 56679.15, "Units": 25.0, "Sales": 12704.789999999999}, {"Month_str": "2025-09", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG2", "Impressions": 1385.0, "Clicks": 2.0, "Spend": 51.92, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-09", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 35637.0, "Clicks": 89.0, "Spend": 7625.83, "Units": 15.0, "Sales": 8621.36}, {"Month_str": "2025-09", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 55140.0, "Clicks": 114.0, "Spend": 3904.41, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-10", "Ad_Type": "SB", "Targeting_Group": "Category", "Targeting_Type": "Category", "Impressions": 333892.0, "Clicks": 1388.0, "Spend": 63830.96, "Units": 63.0, "Sales": 66256.47}, {"Month_str": "2025-10", "Ad_Type": "SB", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 107924.0, "Clicks": 296.0, "Spend": 10722.46749, "Units": 11.0, "Sales": 20937.86}, {"Month_str": "2025-10", "Ad_Type": "SB", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 0.0, "Clicks": 0.0, "Spend": 0.0, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-10", "Ad_Type": "SD", "Targeting_Group": "NA", "Targeting_Type": "NA", "Impressions": 0.0, "Clicks": 0.0, "Spend": 0.0, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-10", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 27021.0, "Clicks": 24.0, "Spend": 4235.37983, "Units": 77.0, "Sales": 74160.65}, {"Month_str": "2025-10", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 223358.0, "Clicks": 261.0, "Spend": 33054.76214, "Units": 73.0, "Sales": 48256.89000000001}, {"Month_str": "2025-10", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Purchases", "Impressions": 252119.0, "Clicks": 331.0, "Spend": 25375.5269, "Units": 99.0, "Sales": 68060.98}, {"Month_str": "2025-10", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Views", "Impressions": 1196917.0, "Clicks": 2660.0, "Spend": 56624.357619999995, "Units": 42.0, "Sales": 27912.75}, {"Month_str": "2025-10", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Close Match", "Impressions": 37310.0, "Clicks": 97.0, "Spend": 2858.8199999999997, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-10", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Complements", "Impressions": 43900.0, "Clicks": 53.0, "Spend": 720.15, "Units": 2.0, "Sales": 1016.19}, {"Month_str": "2025-10", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Loose Match", "Impressions": 42230.0, "Clicks": 134.0, "Spend": 2100.03, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-10", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Substitutes", "Impressions": 224407.0, "Clicks": 332.0, "Spend": 5686.030000000001, "Units": 9.0, "Sales": 4900.95}, {"Month_str": "2025-10", "Ad_Type": "SP", "Targeting_Group": "Category", "Targeting_Type": "Category", "Impressions": 31679.0, "Clicks": 131.0, "Spend": 6903.149999999999, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-10", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 51536.0, "Clicks": 322.0, "Spend": 31861.350000000002, "Units": 101.0, "Sales": 67357.43}, {"Month_str": "2025-10", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG1", "Impressions": 676206.0, "Clicks": 1381.0, "Spend": 129138.90999999999, "Units": 96.0, "Sales": 67198.55}, {"Month_str": "2025-10", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 102749.0, "Clicks": 468.0, "Spend": 29717.799999999996, "Units": 46.0, "Sales": 47583.590000000004}, {"Month_str": "2025-10", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 460549.0, "Clicks": 1018.0, "Spend": 36048.76, "Units": 15.0, "Sales": 21821.53}, {"Month_str": "2025-11", "Ad_Type": "SB", "Targeting_Group": "Category", "Targeting_Type": "Category", "Impressions": 48933.0, "Clicks": 225.0, "Spend": 12343.610000000004, "Units": 18.0, "Sales": 10530.470000000001}, {"Month_str": "2025-11", "Ad_Type": "SB", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 166168.0, "Clicks": 308.0, "Spend": 11294.038, "Units": 14.0, "Sales": 10020.0}, {"Month_str": "2025-11", "Ad_Type": "SB", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 398555.0, "Clicks": 1200.0, "Spend": 44490.36, "Units": 9.0, "Sales": 7431.43}, {"Month_str": "2025-11", "Ad_Type": "SD", "Targeting_Group": "NA", "Targeting_Type": "NA", "Impressions": 0.0, "Clicks": 0.0, "Spend": 0.0, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-11", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 12506.0, "Clicks": 16.0, "Spend": 1613.7608700000003, "Units": 43.0, "Sales": 33417.92}, {"Month_str": "2025-11", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 83413.0, "Clicks": 81.0, "Spend": 13947.94026, "Units": 25.0, "Sales": 14137.73}, {"Month_str": "2025-11", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Purchases", "Impressions": 134197.0, "Clicks": 97.0, "Spend": 19319.441509999997, "Units": 68.0, "Sales": 46387.15}, {"Month_str": "2025-11", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Views", "Impressions": 298178.0, "Clicks": 452.0, "Spend": 22746.17183999999, "Units": 24.0, "Sales": 17960.019999999997}, {"Month_str": "2025-11", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Close Match", "Impressions": 51965.0, "Clicks": 71.0, "Spend": 814.92, "Units": 3.0, "Sales": 1669.52}, {"Month_str": "2025-11", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Complements", "Impressions": 40192.0, "Clicks": 45.0, "Spend": 537.5, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-11", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Loose Match", "Impressions": 151132.0, "Clicks": 269.0, "Spend": 3161.96, "Units": 2.0, "Sales": 964.76}, {"Month_str": "2025-11", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Substitutes", "Impressions": 389533.0, "Clicks": 525.0, "Spend": 5895.680000000001, "Units": 2.0, "Sales": 964.77}, {"Month_str": "2025-11", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 22113.0, "Clicks": 124.0, "Spend": 8562.029999999999, "Units": 24.0, "Sales": 19396.92}, {"Month_str": "2025-11", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG1", "Impressions": 271283.0, "Clicks": 639.0, "Spend": 93351.61000000003, "Units": 87.0, "Sales": 50929.44}, {"Month_str": "2025-11", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG2", "Impressions": 14665.0, "Clicks": 13.0, "Spend": 398.82, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-11", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG3", "Impressions": 1773.0, "Clicks": 8.0, "Spend": 271.0, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-11", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG4", "Impressions": 44908.0, "Clicks": 49.0, "Spend": 1631.35, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-11", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 193713.0, "Clicks": 547.0, "Spend": 25801.620000000003, "Units": 34.0, "Sales": 27549.02}, {"Month_str": "2025-11", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 338859.0, "Clicks": 716.0, "Spend": 32560.92, "Units": 16.0, "Sales": 10013.59}, {"Month_str": "2025-12", "Ad_Type": "SB", "Targeting_Group": "Category", "Targeting_Type": "Category", "Impressions": 72363.0, "Clicks": 411.0, "Spend": 45637.81, "Units": 21.0, "Sales": 32275.72}, {"Month_str": "2025-12", "Ad_Type": "SB", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 66907.0, "Clicks": 102.0, "Spend": 3549.26, "Units": 11.0, "Sales": 6740.950000000001}, {"Month_str": "2025-12", "Ad_Type": "SB", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 11783.0, "Clicks": 55.0, "Spend": 3460.82, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-12", "Ad_Type": "SB", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 85147.0, "Clicks": 327.0, "Spend": 17525.16, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-12", "Ad_Type": "SD", "Targeting_Group": "NA", "Targeting_Type": "NA", "Impressions": 0.0, "Clicks": 0.0, "Spend": 0.0, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-12", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 3783.0, "Clicks": 4.0, "Spend": 658.6957, "Units": 10.0, "Sales": 4746.67}, {"Month_str": "2025-12", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 59929.0, "Clicks": 59.0, "Spend": 10018.64566, "Units": 41.0, "Sales": 26159.88}, {"Month_str": "2025-12", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Purchases", "Impressions": 54332.0, "Clicks": 42.0, "Spend": 10874.087329999998, "Units": 48.0, "Sales": 31197.89}, {"Month_str": "2025-12", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Views", "Impressions": 103547.0, "Clicks": 220.0, "Spend": 4660.534960000001, "Units": 5.0, "Sales": 2572.3900000000003}, {"Month_str": "2025-12", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Close Match", "Impressions": 11992.0, "Clicks": 18.0, "Spend": 186.62, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-12", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Complements", "Impressions": 21682.0, "Clicks": 21.0, "Spend": 231.72000000000003, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2025-12", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Loose Match", "Impressions": 42251.0, "Clicks": 47.0, "Spend": 575.7399999999999, "Units": 1.0, "Sales": 536.19}, {"Month_str": "2025-12", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Substitutes", "Impressions": 95962.0, "Clicks": 132.0, "Spend": 1507.7800000000002, "Units": 5.0, "Sales": 2666.67}, {"Month_str": "2025-12", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 2796.0, "Clicks": 19.0, "Spend": 1057.3700000000001, "Units": 13.0, "Sales": 6028.57}, {"Month_str": "2025-12", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG1", "Impressions": 138479.0, "Clicks": 398.0, "Spend": 59675.88, "Units": 56.0, "Sales": 29478.19}, {"Month_str": "2025-12", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 59223.0, "Clicks": 210.0, "Spend": 13394.66, "Units": 17.0, "Sales": 15014.06}, {"Month_str": "2025-12", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 55800.0, "Clicks": 175.0, "Spend": 14468.18, "Units": 12.0, "Sales": 18329.06}, {"Month_str": "2026-01", "Ad_Type": "SB", "Targeting_Group": "Category", "Targeting_Type": "Category", "Impressions": 57664.0, "Clicks": 287.0, "Spend": 33590.69, "Units": 17.0, "Sales": 15109.550000000001}, {"Month_str": "2026-01", "Ad_Type": "SB", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 177893.0, "Clicks": 273.0, "Spend": 9695.25, "Units": 29.0, "Sales": 24169.53}, {"Month_str": "2026-01", "Ad_Type": "SB", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 16777.0, "Clicks": 76.0, "Spend": 4511.5199999999995, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2026-01", "Ad_Type": "SB", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 185214.0, "Clicks": 617.0, "Spend": 38974.36, "Units": 1.0, "Sales": 7533.05}, {"Month_str": "2026-01", "Ad_Type": "SD", "Targeting_Group": "NA", "Targeting_Type": "NA", "Impressions": 0.0, "Clicks": 0.0, "Spend": 0.0, "Units": 1.0, "Sales": 580.95}, {"Month_str": "2026-01", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 13285.0, "Clicks": 23.0, "Spend": 1964.14484, "Units": 2.0, "Sales": 1043.81}, {"Month_str": "2026-01", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 143778.0, "Clicks": 147.0, "Spend": 23815.8273, "Units": 50.0, "Sales": 33526.33}, {"Month_str": "2026-01", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Purchases", "Impressions": 193059.0, "Clicks": 124.0, "Spend": 34008.70963, "Units": 96.0, "Sales": 61289.78}, {"Month_str": "2026-01", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Views", "Impressions": 311337.0, "Clicks": 600.0, "Spend": 18643.7264, "Units": 20.0, "Sales": 9323.83}, {"Month_str": "2026-01", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Close Match", "Impressions": 23486.0, "Clicks": 43.0, "Spend": 445.55, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2026-01", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Complements", "Impressions": 23590.0, "Clicks": 22.0, "Spend": 258.91, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2026-01", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Loose Match", "Impressions": 56250.0, "Clicks": 120.0, "Spend": 1689.55, "Units": 3.0, "Sales": 1655.24}, {"Month_str": "2026-01", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Substitutes", "Impressions": 143697.0, "Clicks": 256.0, "Spend": 3281.43, "Units": 7.0, "Sales": 3952.2}, {"Month_str": "2026-01", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 8918.0, "Clicks": 68.0, "Spend": 3861.66, "Units": 40.0, "Sales": 19889.79}, {"Month_str": "2026-01", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG1", "Impressions": 266440.0, "Clicks": 852.0, "Spend": 140882.38, "Units": 151.0, "Sales": 87139.99}, {"Month_str": "2026-01", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 103525.0, "Clicks": 406.0, "Spend": 22467.76, "Units": 42.0, "Sales": 32286.21}, {"Month_str": "2026-01", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 115502.0, "Clicks": 366.0, "Spend": 24819.64, "Units": 13.0, "Sales": 11549.54}, {"Month_str": "2026-02", "Ad_Type": "SB", "Targeting_Group": "Category", "Targeting_Type": "Category", "Impressions": 141206.0, "Clicks": 667.0, "Spend": 51420.68, "Units": 35.0, "Sales": 24404.2}, {"Month_str": "2026-02", "Ad_Type": "SB", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 199964.0, "Clicks": 277.0, "Spend": 10375.04, "Units": 17.0, "Sales": 13436.3}, {"Month_str": "2026-02", "Ad_Type": "SB", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 14383.0, "Clicks": 66.0, "Spend": 4219.91, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2026-02", "Ad_Type": "SB", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 62234.0, "Clicks": 284.0, "Spend": 19395.26, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2026-02", "Ad_Type": "SD", "Targeting_Group": "NA", "Targeting_Type": "NA", "Impressions": 0.0, "Clicks": 0.0, "Spend": 0.0, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2026-02", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 13434.0, "Clicks": 9.0, "Spend": 1402.3214600000001, "Units": 1.0, "Sales": 607.1}, {"Month_str": "2026-02", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 77855.0, "Clicks": 75.0, "Spend": 10300.63576, "Units": 28.0, "Sales": 15554.77}, {"Month_str": "2026-02", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Purchases", "Impressions": 127788.0, "Clicks": 88.0, "Spend": 22803.89844, "Units": 73.0, "Sales": 42319.08}, {"Month_str": "2026-02", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Views", "Impressions": 142326.0, "Clicks": 284.0, "Spend": 9040.32324, "Units": 21.0, "Sales": 12408.49}, {"Month_str": "2026-02", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Close Match", "Impressions": 10788.0, "Clicks": 13.0, "Spend": 197.29999999999998, "Units": 5.0, "Sales": 2459.0499999999997}, {"Month_str": "2026-02", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Complements", "Impressions": 14643.0, "Clicks": 12.0, "Spend": 170.12, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2026-02", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Loose Match", "Impressions": 97204.0, "Clicks": 134.0, "Spend": 2057.45, "Units": 8.0, "Sales": 8851.880000000001}, {"Month_str": "2026-02", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Substitutes", "Impressions": 122878.0, "Clicks": 175.0, "Spend": 2579.15, "Units": 4.0, "Sales": 2214.23}, {"Month_str": "2026-02", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 7546.0, "Clicks": 50.0, "Spend": 2963.84, "Units": 13.0, "Sales": 16786.87}, {"Month_str": "2026-02", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG1", "Impressions": 461411.0, "Clicks": 882.0, "Spend": 158649.34, "Units": 94.0, "Sales": 56158.89}, {"Month_str": "2026-02", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 50373.0, "Clicks": 240.0, "Spend": 15184.51, "Units": 53.0, "Sales": 31656.190000000002}, {"Month_str": "2026-02", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 155081.0, "Clicks": 418.0, "Spend": 28675.99, "Units": 7.0, "Sales": 6785.25}, {"Month_str": "2026-03", "Ad_Type": "SB", "Targeting_Group": "Category", "Targeting_Type": "Category", "Impressions": 404879.0, "Clicks": 1972.0, "Spend": 209198.27, "Units": 142.0, "Sales": 146867.94}, {"Month_str": "2026-03", "Ad_Type": "SB", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 198706.0, "Clicks": 248.0, "Spend": 10134.22, "Units": 2.0, "Sales": 1071.42}, {"Month_str": "2026-03", "Ad_Type": "SD", "Targeting_Group": "NA", "Targeting_Type": "NA", "Impressions": 0.0, "Clicks": 0.0, "Spend": 0.0, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2026-03", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 55178.0, "Clicks": 50.0, "Spend": 6544.45334, "Units": 10.0, "Sales": 8503.84}, {"Month_str": "2026-03", "Ad_Type": "SD", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 250060.0, "Clicks": 242.0, "Spend": 37270.567, "Units": 120.0, "Sales": 75227.78}, {"Month_str": "2026-03", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Purchases", "Impressions": 415908.0, "Clicks": 270.0, "Spend": 62236.088840000004, "Units": 200.0, "Sales": 158315.6}, {"Month_str": "2026-03", "Ad_Type": "SD", "Targeting_Group": "Retargeting", "Targeting_Type": "Views", "Impressions": 324878.0, "Clicks": 644.0, "Spend": 19134.77072, "Units": 50.0, "Sales": 25938.84}, {"Month_str": "2026-03", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Close Match", "Impressions": 9888.0, "Clicks": 15.0, "Spend": 277.72, "Units": 4.0, "Sales": 5203.820000000001}, {"Month_str": "2026-03", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Complements", "Impressions": 18237.0, "Clicks": 5.0, "Spend": 76.58, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2026-03", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Loose Match", "Impressions": 168945.0, "Clicks": 64.0, "Spend": 1240.24, "Units": 0.0, "Sales": 0.0}, {"Month_str": "2026-03", "Ad_Type": "SP", "Targeting_Group": "Automatic", "Targeting_Type": "Substitutes", "Impressions": 42696.0, "Clicks": 42.0, "Spend": 743.35, "Units": 5.0, "Sales": 4438.57}, {"Month_str": "2026-03", "Ad_Type": "SP", "Targeting_Group": "Category", "Targeting_Type": "Category", "Impressions": 6813.0, "Clicks": 19.0, "Spend": 2117.39, "Units": 3.0, "Sales": 4638.1}, {"Month_str": "2026-03", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "Brand Keyword", "Impressions": 12859.0, "Clicks": 99.0, "Spend": 5808.77, "Units": 34.0, "Sales": 28108.53}, {"Month_str": "2026-03", "Ad_Type": "SP", "Targeting_Group": "Keyword", "Targeting_Type": "TG1", "Impressions": 127444.0, "Clicks": 337.0, "Spend": 37696.34, "Units": 30.0, "Sales": 35315.86}, {"Month_str": "2026-03", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Brand Products", "Impressions": 123651.0, "Clicks": 483.0, "Spend": 29576.91, "Units": 56.0, "Sales": 42689.590000000004}, {"Month_str": "2026-03", "Ad_Type": "SP", "Targeting_Group": "Products", "Targeting_Type": "Competitor Products", "Impressions": 90560.0, "Clicks": 186.0, "Spend": 12774.51, "Units": 10.0, "Sales": 8540.86}];
+const adtypeMonthly = [{"Month_str": "2025-06", "Ad_Type": "SD", "Spend": 3788.60516, "Sales": 20076.16, "Units": 20.0, "Impressions": 48893.0, "Clicks": 132.0, "ROAS": 5.29909007461733}, {"Month_str": "2025-06", "Ad_Type": "SP", "Spend": 9411.82, "Sales": 10304.720000000001, "Units": 13.0, "Impressions": 186712.0, "Clicks": 337.0, "ROAS": 1.0948700676383527}, {"Month_str": "2025-07", "Ad_Type": "SD", "Spend": 47406.15493, "Sales": 95216.65, "Units": 132.0, "Impressions": 469057.0, "Clicks": 774.0, "ROAS": 2.0085292751668438}, {"Month_str": "2025-07", "Ad_Type": "SP", "Spend": 101887.17, "Sales": 126367.17, "Units": 156.0, "Impressions": 1684534.0, "Clicks": 2709.0, "ROAS": 1.2402657763484843}, {"Month_str": "2025-08", "Ad_Type": "SD", "Spend": 44026.031930000005, "Sales": 59493.9, "Units": 84.0, "Impressions": 393797.0, "Clicks": 631.0, "ROAS": 1.3513345943734703}, {"Month_str": "2025-08", "Ad_Type": "SP", "Spend": 102114.97000000002, "Sales": 75752.17, "Units": 100.0, "Impressions": 785454.0, "Clicks": 1628.0, "ROAS": 0.7418321721095348}, {"Month_str": "2025-09", "Ad_Type": "SB", "Spend": 38175.058170000004, "Sales": 9945.73, "Units": 11.0, "Impressions": 251501.0, "Clicks": 639.0, "ROAS": 0.26052953097569564}, {"Month_str": "2025-09", "Ad_Type": "SD", "Spend": 18561.6588, "Sales": 35861.76, "Units": 56.0, "Impressions": 213439.0, "Clicks": 518.0, "ROAS": 1.9320342209932229}, {"Month_str": "2025-09", "Ad_Type": "SP", "Spend": 83052.16, "Sales": 90957.72, "Units": 107.0, "Impressions": 431041.0, "Clicks": 926.0, "ROAS": 1.0951878915611586}, {"Month_str": "2025-10", "Ad_Type": "SB", "Spend": 74553.42749, "Sales": 87194.33, "Units": 74.0, "Impressions": 441816.0, "Clicks": 1684.0, "ROAS": 1.169554947848582}, {"Month_str": "2025-10", "Ad_Type": "SD", "Spend": 119290.02649, "Sales": 218391.27, "Units": 291.0, "Impressions": 1699415.0, "Clicks": 3276.0, "ROAS": 1.8307588356375089}, {"Month_str": "2025-10", "Ad_Type": "SP", "Spend": 245035.0, "Sales": 209878.24000000002, "Units": 269.0, "Impressions": 1670566.0, "Clicks": 3936.0, "ROAS": 0.856523517048585}, {"Month_str": "2025-11", "Ad_Type": "SB", "Spend": 68128.008, "Sales": 27981.9, "Units": 41.0, "Impressions": 613656.0, "Clicks": 1733.0, "ROAS": 0.4107253510186295}, {"Month_str": "2025-11", "Ad_Type": "SD", "Spend": 57627.314479999986, "Sales": 111902.81999999999, "Units": 160.0, "Impressions": 528294.0, "Clicks": 646.0, "ROAS": 1.9418364539412425}, {"Month_str": "2025-11", "Ad_Type": "SP", "Spend": 172987.41000000003, "Sales": 111488.02, "Units": 168.0, "Impressions": 1520136.0, "Clicks": 3006.0, "ROAS": 0.6444863241781583}, {"Month_str": "2025-12", "Ad_Type": "SB", "Spend": 70173.05, "Sales": 39016.67, "Units": 32.0, "Impressions": 236200.0, "Clicks": 895.0, "ROAS": 0.5560064725703101}, {"Month_str": "2025-12", "Ad_Type": "SD", "Spend": 26211.963649999998, "Sales": 64676.83, "Units": 104.0, "Impressions": 221591.0, "Clicks": 325.0, "ROAS": 2.4674545891948085}, {"Month_str": "2025-12", "Ad_Type": "SP", "Spend": 91097.95, "Sales": 72052.74, "Units": 104.0, "Impressions": 428185.0, "Clicks": 1020.0, "ROAS": 0.7909370079129114}, {"Month_str": "2026-01", "Ad_Type": "SB", "Spend": 86771.82, "Sales": 46812.130000000005, "Units": 47.0, "Impressions": 437548.0, "Clicks": 1253.0, "ROAS": 0.5394853997530534}, {"Month_str": "2026-01", "Ad_Type": "SD", "Spend": 78432.40817, "Sales": 105764.7, "Units": 169.0, "Impressions": 661459.0, "Clicks": 894.0, "ROAS": 1.3484821194162244}, {"Month_str": "2026-01", "Ad_Type": "SP", "Spend": 197706.88, "Sales": 156472.97, "Units": 256.0, "Impressions": 741408.0, "Clicks": 2133.0, "ROAS": 0.7914391750049365}, {"Month_str": "2026-02", "Ad_Type": "SB", "Spend": 85410.89, "Sales": 37840.5, "Units": 52.0, "Impressions": 417787.0, "Clicks": 1294.0, "ROAS": 0.4430406942252914}, {"Month_str": "2026-02", "Ad_Type": "SD", "Spend": 43547.1789, "Sales": 70889.44, "Units": 123.0, "Impressions": 361403.0, "Clicks": 456.0, "ROAS": 1.6278767486359491}, {"Month_str": "2026-02", "Ad_Type": "SP", "Spend": 210477.7, "Sales": 124912.36, "Units": 184.0, "Impressions": 919924.0, "Clicks": 1924.0, "ROAS": 0.5934707572346144}, {"Month_str": "2026-03", "Ad_Type": "SB", "Spend": 219332.49, "Sales": 147939.36000000002, "Units": 144.0, "Impressions": 603585.0, "Clicks": 2220.0, "ROAS": 0.6744981557451886}, {"Month_str": "2026-03", "Ad_Type": "SD", "Spend": 125185.8799, "Sales": 267986.06, "Units": 380.0, "Impressions": 1046024.0, "Clicks": 1206.0, "ROAS": 2.1407051675002844}, {"Month_str": "2026-03", "Ad_Type": "SP", "Spend": 90311.81, "Sales": 128935.33, "Units": 142.0, "Impressions": 601093.0, "Clicks": 1250.0, "ROAS": 1.4276685408032461}];
+const targetingMonthly = [{"Month_str": "2025-06", "Targeting_Type": "Brand Keyword", "Spend": 140.01000000000002, "Sales": 3376.1800000000003, "Units": 4.0, "Impressions": 267.0, "Clicks": 17.0}, {"Month_str": "2025-06", "Targeting_Type": "Brand Products", "Spend": 1621.40455, "Sales": 16342.82, "Units": 19.0, "Impressions": 10559.0, "Clicks": 36.0}, {"Month_str": "2025-06", "Targeting_Type": "Category", "Spend": 2314.11, "Sales": 533.33, "Units": 1.0, "Impressions": 98008.0, "Clicks": 110.0}, {"Month_str": "2025-06", "Targeting_Type": "Close Match", "Spend": 1359.64, "Sales": 0.0, "Units": 0.0, "Impressions": 32302.0, "Clicks": 55.0}, {"Month_str": "2025-06", "Targeting_Type": "Competitor Products", "Spend": 1789.60252, "Sales": 0.0, "Units": 0.0, "Impressions": 24385.0, "Clicks": 46.0}, {"Month_str": "2025-06", "Targeting_Type": "Complements", "Spend": 385.14, "Sales": 0.0, "Units": 0.0, "Impressions": 10623.0, "Clicks": 16.0}, {"Month_str": "2025-06", "Targeting_Type": "Loose Match", "Spend": 824.54, "Sales": 0.0, "Units": 0.0, "Impressions": 7363.0, "Clicks": 36.0}, {"Month_str": "2025-06", "Targeting_Type": "NA", "Spend": 0.0, "Sales": 0.0, "Units": 0.0, "Impressions": 0.0, "Clicks": 0.0}, {"Month_str": "2025-06", "Targeting_Type": "Purchases", "Spend": 232.82194, "Sales": 4619.04, "Units": 2.0, "Impressions": 2758.0, "Clicks": 5.0}, {"Month_str": "2025-06", "Targeting_Type": "Substitutes", "Spend": 0.0, "Sales": 0.0, "Units": 0.0, "Impressions": 161.0, "Clicks": 0.0}, {"Month_str": "2025-06", "Targeting_Type": "TG1", "Spend": 1987.4, "Sales": 2133.32, "Units": 4.0, "Impressions": 10882.0, "Clicks": 23.0}, {"Month_str": "2025-06", "Targeting_Type": "TG2", "Spend": 0.0, "Sales": 0.0, "Units": 0.0, "Impressions": 621.0, "Clicks": 0.0}, {"Month_str": "2025-06", "Targeting_Type": "TG3", "Spend": 0.0, "Sales": 0.0, "Units": 0.0, "Impressions": 203.0, "Clicks": 0.0}, {"Month_str": "2025-06", "Targeting_Type": "TG4", "Spend": 63.02, "Sales": 0.0, "Units": 0.0, "Impressions": 2556.0, "Clicks": 4.0}, {"Month_str": "2025-06", "Targeting_Type": "Views", "Spend": 2482.73615, "Sales": 3376.19, "Units": 3.0, "Impressions": 34917.0, "Clicks": 121.0}, {"Month_str": "2025-07", "Targeting_Type": "Brand Keyword", "Spend": 648.6700000000001, "Sales": 10904.57, "Units": 18.0, "Impressions": 1404.0, "Clicks": 57.0}, {"Month_str": "2025-07", "Targeting_Type": "Brand Products", "Spend": 16372.735709999999, "Sales": 132493.41, "Units": 175.0, "Impressions": 85069.0, "Clicks": 378.0}, {"Month_str": "2025-07", "Targeting_Type": "Category", "Spend": 28509.576510000003, "Sales": 14727.45, "Units": 20.0, "Impressions": 861299.0, "Clicks": 1053.0}, {"Month_str": "2025-07", "Targeting_Type": "Close Match", "Spend": 526.36, "Sales": 2078.1, "Units": 1.0, "Impressions": 38582.0, "Clicks": 33.0}, {"Month_str": "2025-07", "Targeting_Type": "Competitor Products", "Spend": 13719.272229999999, "Sales": 5348.57, "Units": 7.0, "Impressions": 307494.0, "Clicks": 453.0}, {"Month_str": "2025-07", "Targeting_Type": "Complements", "Spend": 1003.2999999999998, "Sales": 0.0, "Units": 0.0, "Impressions": 41044.0, "Clicks": 56.0}, {"Month_str": "2025-07", "Targeting_Type": "Loose Match", "Spend": 587.21, "Sales": 0.0, "Units": 0.0, "Impressions": 11781.0, "Clicks": 35.0}, {"Month_str": "2025-07", "Targeting_Type": "NA", "Spend": 0.0, "Sales": 0.0, "Units": 0.0, "Impressions": 0.0, "Clicks": 0.0}, {"Month_str": "2025-07", "Targeting_Type": "Purchases", "Spend": 864.0727499999999, "Sales": 3356.2, "Units": 3.0, "Impressions": 11147.0, "Clicks": 5.0}, {"Month_str": "2025-07", "Targeting_Type": "Substitutes", "Spend": 2055.3099999999995, "Sales": 480.0, "Units": 1.0, "Impressions": 89418.0, "Clicks": 119.0}, {"Month_str": "2025-07", "Targeting_Type": "TG1", "Spend": 45616.189999999995, "Sales": 27425.6, "Units": 29.0, "Impressions": 205008.0, "Clicks": 425.0}, {"Month_str": "2025-07", "Targeting_Type": "TG2", "Spend": 4360.98, "Sales": 480.0, "Units": 1.0, "Impressions": 119854.0, "Clicks": 120.0}, {"Month_str": "2025-07", "Targeting_Type": "TG3", "Spend": 1702.59, "Sales": 0.0, "Units": 0.0, "Impressions": 17958.0, "Clicks": 36.0}, {"Month_str": "2025-07", "Targeting_Type": "TG4", "Spend": 3675.77, "Sales": 0.0, "Units": 0.0, "Impressions": 75404.0, "Clicks": 93.0}, {"Month_str": "2025-07", "Targeting_Type": "Views", "Spend": 29651.28773, "Sales": 24289.92, "Units": 33.0, "Impressions": 288129.0, "Clicks": 620.0}, {"Month_str": "2025-08", "Targeting_Type": "Brand Keyword", "Spend": 838.05, "Sales": 16034.32, "Units": 19.0, "Impressions": 1846.0, "Clicks": 34.0}, {"Month_str": "2025-08", "Targeting_Type": "Brand Products", "Spend": 17251.49729, "Sales": 36839.25, "Units": 55.0, "Impressions": 68942.0, "Clicks": 201.0}, {"Month_str": "2025-08", "Targeting_Type": "Category", "Spend": 16621.19817, "Sales": 5651.26, "Units": 7.0, "Impressions": 297523.0, "Clicks": 603.0}, {"Month_str": "2025-08", "Targeting_Type": "Close Match", "Spend": 108.26, "Sales": 1975.24, "Units": 1.0, "Impressions": 2711.0, "Clicks": 10.0}, {"Month_str": "2025-08", "Targeting_Type": "Competitor Products", "Spend": 12067.48921, "Sales": 5856.43, "Units": 12.0, "Impressions": 182916.0, "Clicks": 298.0}, {"Month_str": "2025-08", "Targeting_Type": "Complements", "Spend": 44.150000000000006, "Sales": 0.0, "Units": 0.0, "Impressions": 2948.0, "Clicks": 4.0}, {"Month_str": "2025-08", "Targeting_Type": "Loose Match", "Spend": 216.45, "Sales": 0.0, "Units": 0.0, "Impressions": 5795.0, "Clicks": 17.0}, {"Month_str": "2025-08", "Targeting_Type": "NA", "Spend": 0.0, "Sales": 0.0, "Units": 0.0, "Impressions": 0.0, "Clicks": 0.0}, {"Month_str": "2025-08", "Targeting_Type": "Purchases", "Spend": 4389.6025, "Sales": 24805.989999999998, "Units": 29.0, "Impressions": 34687.0, "Clicks": 43.0}, {"Month_str": "2025-08", "Targeting_Type": "Substitutes", "Spend": 989.7300000000002, "Sales": 606.67, "Units": 1.0, "Impressions": 23814.0, "Clicks": 88.0}, {"Month_str": "2025-08", "Targeting_Type": "TG1", "Spend": 64492.81000000001, "Sales": 31162.72, "Units": 42.0, "Impressions": 231270.0, "Clicks": 365.0}, {"Month_str": "2025-08", "Targeting_Type": "TG2", "Spend": 3038.3799999999997, "Sales": 0.0, "Units": 0.0, "Impressions": 106891.0, "Clicks": 114.0}, {"Month_str": "2025-08", "Targeting_Type": "Views", "Spend": 26083.384760000004, "Sales": 12314.190000000004, "Units": 18.0, "Impressions": 219908.0, "Clicks": 482.0}, {"Month_str": "2025-09", "Targeting_Type": "Brand Keyword", "Spend": 19021.59817, "Sales": 69782.05, "Units": 64.0, "Impressions": 62466.0, "Clicks": 206.0}, {"Month_str": "2025-09", "Targeting_Type": "Brand Products", "Spend": 12314.59701, "Sales": 20626.989999999998, "Units": 34.0, "Impressions": 51890.0, "Clicks": 130.0}, {"Month_str": "2025-09", "Targeting_Type": "Category", "Spend": 19227.11186, "Sales": 6095.249999999999, "Units": 6.0, "Impressions": 174645.0, "Clicks": 400.0}, {"Month_str": "2025-09", "Targeting_Type": "Close Match", "Spend": 159.92000000000002, "Sales": 2737.14, "Units": 6.0, "Impressions": 7361.0, "Clicks": 12.0}, {"Month_str": "2025-09", "Targeting_Type": "Competitor Products", "Spend": 20252.97891, "Sales": 5520.01, "Units": 8.0, "Impressions": 168526.0, "Clicks": 408.0}, {"Month_str": "2025-09", "Targeting_Type": "Complements", "Spend": 40.85, "Sales": 0.0, "Units": 0.0, "Impressions": 2070.0, "Clicks": 3.0}, {"Month_str": "2025-09", "Targeting_Type": "Loose Match", "Spend": 180.29000000000002, "Sales": 0.0, "Units": 0.0, "Impressions": 5757.0, "Clicks": 14.0}, {"Month_str": "2025-09", "Targeting_Type": "NA", "Spend": 0.0, "Sales": 0.0, "Units": 0.0, "Impressions": 0.0, "Clicks": 0.0}, {"Month_str": "2025-09", "Targeting_Type": "Purchases", "Spend": 3949.81122, "Sales": 15498.98, "Units": 23.0, "Impressions": 45527.0, "Clicks": 96.0}, {"Month_str": "2025-09", "Targeting_Type": "Substitutes", "Spend": 481.03999999999996, "Sales": 456.19, "Units": 1.0, "Impressions": 19512.0, "Clicks": 39.0}, {"Month_str": "2025-09", "Targeting_Type": "TG1", "Spend": 56679.15, "Sales": 12704.789999999999, "Units": 25.0, "Impressions": 260166.0, "Clicks": 483.0}, {"Month_str": "2025-09", "Targeting_Type": "TG2", "Spend": 51.92, "Sales": 0.0, "Units": 0.0, "Impressions": 1385.0, "Clicks": 2.0}, {"Month_str": "2025-09", "Targeting_Type": "Views", "Spend": 7429.609799999999, "Sales": 3343.81, "Units": 7.0, "Impressions": 96676.0, "Clicks": 290.0}, {"Month_str": "2025-10", "Targeting_Type": "Brand Keyword", "Spend": 42583.81749, "Sales": 88295.29, "Units": 112.0, "Impressions": 159460.0, "Clicks": 618.0}, {"Month_str": "2025-10", "Targeting_Type": "Brand Products", "Spend": 33953.179829999994, "Sales": 121744.24, "Units": 123.0, "Impressions": 129770.0, "Clicks": 492.0}, {"Month_str": "2025-10", "Targeting_Type": "Category", "Spend": 70734.11, "Sales": 66256.47, "Units": 63.0, "Impressions": 365571.0, "Clicks": 1519.0}, {"Month_str": "2025-10", "Targeting_Type": "Close Match", "Spend": 2858.8199999999997, "Sales": 0.0, "Units": 0.0, "Impressions": 37310.0, "Clicks": 97.0}, {"Month_str": "2025-10", "Targeting_Type": "Competitor Products", "Spend": 69103.52214, "Sales": 70078.42, "Units": 88.0, "Impressions": 683907.0, "Clicks": 1279.0}, {"Month_str": "2025-10", "Targeting_Type": "Complements", "Spend": 720.15, "Sales": 1016.19, "Units": 2.0, "Impressions": 43900.0, "Clicks": 53.0}, {"Month_str": "2025-10", "Targeting_Type": "Loose Match", "Spend": 2100.03, "Sales": 0.0, "Units": 0.0, "Impressions": 42230.0, "Clicks": 134.0}, {"Month_str": "2025-10", "Targeting_Type": "NA", "Spend": 0.0, "Sales": 0.0, "Units": 0.0, "Impressions": 0.0, "Clicks": 0.0}, {"Month_str": "2025-10", "Targeting_Type": "Purchases", "Spend": 25375.5269, "Sales": 68060.98, "Units": 99.0, "Impressions": 252119.0, "Clicks": 331.0}, {"Month_str": "2025-10", "Targeting_Type": "Substitutes", "Spend": 5686.030000000001, "Sales": 4900.95, "Units": 9.0, "Impressions": 224407.0, "Clicks": 332.0}, {"Month_str": "2025-10", "Targeting_Type": "TG1", "Spend": 129138.90999999999, "Sales": 67198.55, "Units": 96.0, "Impressions": 676206.0, "Clicks": 1381.0}, {"Month_str": "2025-10", "Targeting_Type": "Views", "Spend": 56624.357619999995, "Sales": 27912.75, "Units": 42.0, "Impressions": 1196917.0, "Clicks": 2660.0}, {"Month_str": "2025-11", "Targeting_Type": "Brand Keyword", "Spend": 19856.068, "Sales": 29416.92, "Units": 38.0, "Impressions": 188281.0, "Clicks": 432.0}, {"Month_str": "2025-11", "Targeting_Type": "Brand Products", "Spend": 27415.38087, "Sales": 60966.939999999995, "Units": 77.0, "Impressions": 206219.0, "Clicks": 563.0}, {"Month_str": "2025-11", "Targeting_Type": "Category", "Spend": 12343.610000000004, "Sales": 10530.470000000001, "Units": 18.0, "Impressions": 48933.0, "Clicks": 225.0}, {"Month_str": "2025-11", "Targeting_Type": "Close Match", "Spend": 814.92, "Sales": 1669.52, "Units": 3.0, "Impressions": 51965.0, "Clicks": 71.0}, {"Month_str": "2025-11", "Targeting_Type": "Competitor Products", "Spend": 90999.22026, "Sales": 31582.75, "Units": 50.0, "Impressions": 820827.0, "Clicks": 1997.0}, {"Month_str": "2025-11", "Targeting_Type": "Complements", "Spend": 537.5, "Sales": 0.0, "Units": 0.0, "Impressions": 40192.0, "Clicks": 45.0}, {"Month_str": "2025-11", "Targeting_Type": "Loose Match", "Spend": 3161.96, "Sales": 964.76, "Units": 2.0, "Impressions": 151132.0, "Clicks": 269.0}, {"Month_str": "2025-11", "Targeting_Type": "NA", "Spend": 0.0, "Sales": 0.0, "Units": 0.0, "Impressions": 0.0, "Clicks": 0.0}, {"Month_str": "2025-11", "Targeting_Type": "Purchases", "Spend": 19319.441509999997, "Sales": 46387.15, "Units": 68.0, "Impressions": 134197.0, "Clicks": 97.0}, {"Month_str": "2025-11", "Targeting_Type": "Substitutes", "Spend": 5895.680000000001, "Sales": 964.77, "Units": 2.0, "Impressions": 389533.0, "Clicks": 525.0}, {"Month_str": "2025-11", "Targeting_Type": "TG1", "Spend": 93351.61000000003, "Sales": 50929.44, "Units": 87.0, "Impressions": 271283.0, "Clicks": 639.0}, {"Month_str": "2025-11", "Targeting_Type": "TG2", "Spend": 398.82, "Sales": 0.0, "Units": 0.0, "Impressions": 14665.0, "Clicks": 13.0}, {"Month_str": "2025-11", "Targeting_Type": "TG3", "Spend": 271.0, "Sales": 0.0, "Units": 0.0, "Impressions": 1773.0, "Clicks": 8.0}, {"Month_str": "2025-11", "Targeting_Type": "TG4", "Spend": 1631.35, "Sales": 0.0, "Units": 0.0, "Impressions": 44908.0, "Clicks": 49.0}, {"Month_str": "2025-11", "Targeting_Type": "Views", "Spend": 22746.17183999999, "Sales": 17960.019999999997, "Units": 24.0, "Impressions": 298178.0, "Clicks": 452.0}, {"Month_str": "2025-12", "Targeting_Type": "Brand Keyword", "Spend": 4606.63, "Sales": 12769.52, "Units": 24.0, "Impressions": 69703.0, "Clicks": 121.0}, {"Month_str": "2025-12", "Targeting_Type": "Brand Products", "Spend": 17514.1757, "Sales": 19760.73, "Units": 27.0, "Impressions": 74789.0, "Clicks": 269.0}, {"Month_str": "2025-12", "Targeting_Type": "Category", "Spend": 45637.81, "Sales": 32275.72, "Units": 21.0, "Impressions": 72363.0, "Clicks": 411.0}, {"Month_str": "2025-12", "Targeting_Type": "Close Match", "Spend": 186.62, "Sales": 0.0, "Units": 0.0, "Impressions": 11992.0, "Clicks": 18.0}, {"Month_str": "2025-12", "Targeting_Type": "Competitor Products", "Spend": 42011.98566, "Sales": 44488.94, "Units": 53.0, "Impressions": 200876.0, "Clicks": 561.0}, {"Month_str": "2025-12", "Targeting_Type": "Complements", "Spend": 231.72000000000003, "Sales": 0.0, "Units": 0.0, "Impressions": 21682.0, "Clicks": 21.0}, {"Month_str": "2025-12", "Targeting_Type": "Loose Match", "Spend": 575.7399999999999, "Sales": 536.19, "Units": 1.0, "Impressions": 42251.0, "Clicks": 47.0}, {"Month_str": "2025-12", "Targeting_Type": "NA", "Spend": 0.0, "Sales": 0.0, "Units": 0.0, "Impressions": 0.0, "Clicks": 0.0}, {"Month_str": "2025-12", "Targeting_Type": "Purchases", "Spend": 10874.087329999998, "Sales": 31197.89, "Units": 48.0, "Impressions": 54332.0, "Clicks": 42.0}, {"Month_str": "2025-12", "Targeting_Type": "Substitutes", "Spend": 1507.7800000000002, "Sales": 2666.67, "Units": 5.0, "Impressions": 95962.0, "Clicks": 132.0}, {"Month_str": "2025-12", "Targeting_Type": "TG1", "Spend": 59675.88, "Sales": 29478.19, "Units": 56.0, "Impressions": 138479.0, "Clicks": 398.0}, {"Month_str": "2025-12", "Targeting_Type": "Views", "Spend": 4660.534960000001, "Sales": 2572.3900000000003, "Units": 5.0, "Impressions": 103547.0, "Clicks": 220.0}, {"Month_str": "2026-01", "Targeting_Type": "Brand Keyword", "Spend": 13556.91, "Sales": 44059.32, "Units": 69.0, "Impressions": 186811.0, "Clicks": 341.0}, {"Month_str": "2026-01", "Targeting_Type": "Brand Products", "Spend": 28943.42484, "Sales": 33330.020000000004, "Units": 44.0, "Impressions": 133587.0, "Clicks": 505.0}, {"Month_str": "2026-01", "Targeting_Type": "Category", "Spend": 33590.69, "Sales": 15109.550000000001, "Units": 17.0, "Impressions": 57664.0, "Clicks": 287.0}, {"Month_str": "2026-01", "Targeting_Type": "Close Match", "Spend": 445.55, "Sales": 0.0, "Units": 0.0, "Impressions": 23486.0, "Clicks": 43.0}, {"Month_str": "2026-01", "Targeting_Type": "Competitor Products", "Spend": 87609.8273, "Sales": 52608.92, "Units": 64.0, "Impressions": 444494.0, "Clicks": 1130.0}, {"Month_str": "2026-01", "Targeting_Type": "Complements", "Spend": 258.91, "Sales": 0.0, "Units": 0.0, "Impressions": 23590.0, "Clicks": 22.0}, {"Month_str": "2026-01", "Targeting_Type": "Loose Match", "Spend": 1689.55, "Sales": 1655.24, "Units": 3.0, "Impressions": 56250.0, "Clicks": 120.0}, {"Month_str": "2026-01", "Targeting_Type": "NA", "Spend": 0.0, "Sales": 580.95, "Units": 1.0, "Impressions": 0.0, "Clicks": 0.0}, {"Month_str": "2026-01", "Targeting_Type": "Purchases", "Spend": 34008.70963, "Sales": 61289.78, "Units": 96.0, "Impressions": 193059.0, "Clicks": 124.0}, {"Month_str": "2026-01", "Targeting_Type": "Substitutes", "Spend": 3281.43, "Sales": 3952.2, "Units": 7.0, "Impressions": 143697.0, "Clicks": 256.0}, {"Month_str": "2026-01", "Targeting_Type": "TG1", "Spend": 140882.38, "Sales": 87139.99, "Units": 151.0, "Impressions": 266440.0, "Clicks": 852.0}, {"Month_str": "2026-01", "Targeting_Type": "Views", "Spend": 18643.7264, "Sales": 9323.83, "Units": 20.0, "Impressions": 311337.0, "Clicks": 600.0}, {"Month_str": "2026-02", "Targeting_Type": "Brand Keyword", "Spend": 13338.88, "Sales": 30223.170000000002, "Units": 30.0, "Impressions": 207510.0, "Clicks": 327.0}, {"Month_str": "2026-02", "Targeting_Type": "Brand Products", "Spend": 20806.74146, "Sales": 32263.29, "Units": 54.0, "Impressions": 78190.0, "Clicks": 315.0}, {"Month_str": "2026-02", "Targeting_Type": "Category", "Spend": 51420.68, "Sales": 24404.2, "Units": 35.0, "Impressions": 141206.0, "Clicks": 667.0}, {"Month_str": "2026-02", "Targeting_Type": "Close Match", "Spend": 197.29999999999998, "Sales": 2459.0499999999997, "Units": 5.0, "Impressions": 10788.0, "Clicks": 13.0}, {"Month_str": "2026-02", "Targeting_Type": "Competitor Products", "Spend": 58371.88576, "Sales": 22340.02, "Units": 35.0, "Impressions": 295170.0, "Clicks": 777.0}, {"Month_str": "2026-02", "Targeting_Type": "Complements", "Spend": 170.12, "Sales": 0.0, "Units": 0.0, "Impressions": 14643.0, "Clicks": 12.0}, {"Month_str": "2026-02", "Targeting_Type": "Loose Match", "Spend": 2057.45, "Sales": 8851.880000000001, "Units": 8.0, "Impressions": 97204.0, "Clicks": 134.0}, {"Month_str": "2026-02", "Targeting_Type": "NA", "Spend": 0.0, "Sales": 0.0, "Units": 0.0, "Impressions": 0.0, "Clicks": 0.0}, {"Month_str": "2026-02", "Targeting_Type": "Purchases", "Spend": 22803.89844, "Sales": 42319.08, "Units": 73.0, "Impressions": 127788.0, "Clicks": 88.0}, {"Month_str": "2026-02", "Targeting_Type": "Substitutes", "Spend": 2579.15, "Sales": 2214.23, "Units": 4.0, "Impressions": 122878.0, "Clicks": 175.0}, {"Month_str": "2026-02", "Targeting_Type": "TG1", "Spend": 158649.34, "Sales": 56158.89, "Units": 94.0, "Impressions": 461411.0, "Clicks": 882.0}, {"Month_str": "2026-02", "Targeting_Type": "Views", "Spend": 9040.32324, "Sales": 12408.49, "Units": 21.0, "Impressions": 142326.0, "Clicks": 284.0}, {"Month_str": "2026-03", "Targeting_Type": "Brand Keyword", "Spend": 15942.99, "Sales": 29179.95, "Units": 36.0, "Impressions": 211565.0, "Clicks": 347.0}, {"Month_str": "2026-03", "Targeting_Type": "Brand Products", "Spend": 36121.363339999996, "Sales": 51193.43, "Units": 66.0, "Impressions": 178829.0, "Clicks": 533.0}, {"Month_str": "2026-03", "Targeting_Type": "Category", "Spend": 211315.66, "Sales": 151506.04, "Units": 145.0, "Impressions": 411692.0, "Clicks": 1991.0}, {"Month_str": "2026-03", "Targeting_Type": "Close Match", "Spend": 277.72, "Sales": 5203.820000000001, "Units": 4.0, "Impressions": 9888.0, "Clicks": 15.0}, {"Month_str": "2026-03", "Targeting_Type": "Competitor Products", "Spend": 50045.077, "Sales": 83768.64, "Units": 130.0, "Impressions": 340620.0, "Clicks": 428.0}, {"Month_str": "2026-03", "Targeting_Type": "Complements", "Spend": 76.58, "Sales": 0.0, "Units": 0.0, "Impressions": 18237.0, "Clicks": 5.0}, {"Month_str": "2026-03", "Targeting_Type": "Loose Match", "Spend": 1240.24, "Sales": 0.0, "Units": 0.0, "Impressions": 168945.0, "Clicks": 64.0}, {"Month_str": "2026-03", "Targeting_Type": "NA", "Spend": 0.0, "Sales": 0.0, "Units": 0.0, "Impressions": 0.0, "Clicks": 0.0}, {"Month_str": "2026-03", "Targeting_Type": "Purchases", "Spend": 62236.088840000004, "Sales": 158315.6, "Units": 200.0, "Impressions": 415908.0, "Clicks": 270.0}, {"Month_str": "2026-03", "Targeting_Type": "Substitutes", "Spend": 743.35, "Sales": 4438.57, "Units": 5.0, "Impressions": 42696.0, "Clicks": 42.0}, {"Month_str": "2026-03", "Targeting_Type": "TG1", "Spend": 37696.34, "Sales": 35315.86, "Units": 30.0, "Impressions": 127444.0, "Clicks": 337.0}, {"Month_str": "2026-03", "Targeting_Type": "Views", "Spend": 19134.77072, "Sales": 25938.84, "Units": 50.0, "Impressions": 324878.0, "Clicks": 644.0}];
+
+// ========== STATE ==========
+let selectedMonths = new Set(MONTHS); // "All" by default
+let charts = {};
+
+// ========== FORMATTING ==========
+function fmtINR(v) {
+    if (v == null || isNaN(v)) return '—';
+    const abs = Math.abs(v);
+    if (abs >= 1e7) return '\u20B9' + (v/1e7).toFixed(2) + ' Cr';
+    if (abs >= 1e5) return '\u20B9' + (v/1e5).toFixed(2) + ' L';
+    if (abs >= 1e3) return '\u20B9' + (v/1e3).toFixed(1) + 'K';
+    return '\u20B9' + v.toFixed(0);
+}
+
+function fmtNum(v, d=0) {
+    if (v == null || isNaN(v)) return '—';
+    return v.toLocaleString('en-IN', {maximumFractionDigits:d});
+}
+
+function fmtMonth(m) {
+    const [y,mo] = m.split('-');
+    const names = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return names[parseInt(mo)] + " '" + y.slice(2);
+}
+
+function roasBadge(v) {
+    if (v >= 3) return '<span class="roas-badge roas-high">' + v.toFixed(2) + 'x</span>';
+    if (v >= 1) return '<span class="roas-badge roas-mid">' + v.toFixed(2) + 'x</span>';
+    return '<span class="roas-badge roas-low">' + v.toFixed(2) + 'x</span>';
+}
+
+function ctr(clicks, imp) { return imp > 0 ? (clicks/imp*100).toFixed(2)+'%' : '—'; }
+function cov(units, imp) { return imp > 0 ? (units/imp*100).toFixed(4)+'%' : '—'; }
+function cpc(spend, clicks) { return clicks > 0 ? fmtINR(spend/clicks) : '—'; }
+function roas(sales, spend) { return spend > 0 ? sales/spend : 0; }
+
+// ========== FILTER CHIPS ==========
+function initFilters() {
+    const bar = document.getElementById('filter-bar');
+    // "All" chip
+    const allChip = document.createElement('div');
+    allChip.className = 'month-chip active';
+    allChip.textContent = 'All Months';
+    allChip.dataset.month = 'ALL';
+    allChip.onclick = () => selectAll();
+    bar.appendChild(allChip);
+
+    MONTHS.forEach(m => {
+        const chip = document.createElement('div');
+        chip.className = 'month-chip';
+        chip.textContent = fmtMonth(m);
+        chip.dataset.month = m;
+        chip.onclick = () => toggleMonth(m);
+        bar.appendChild(chip);
+    });
+}
+
+function selectAll() {
+    selectedMonths = new Set(MONTHS);
+    document.querySelectorAll('.month-chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.month === 'ALL');
+    });
+    refreshAll();
+}
+
+function toggleMonth(m) {
+    const allChip = document.querySelector('.month-chip[data-month="ALL"]');
+    // If "All" was active, clear and select only this month
+    if (selectedMonths.size === MONTHS.length) {
+        selectedMonths.clear();
+        selectedMonths.add(m);
+    } else if (selectedMonths.has(m)) {
+        selectedMonths.delete(m);
+        if (selectedMonths.size === 0) { selectAll(); return; }
+    } else {
+        selectedMonths.add(m);
+    }
+
+    // Update chip styles
+    allChip.classList.toggle('active', selectedMonths.size === MONTHS.length);
+    document.querySelectorAll('.month-chip').forEach(c => {
+        if (c.dataset.month !== 'ALL') {
+            c.classList.toggle('active', selectedMonths.has(c.dataset.month));
+        }
+    });
+    // If all selected individually, make it "All"
+    if (selectedMonths.size === MONTHS.length) {
+        allChip.classList.add('active');
+        document.querySelectorAll('.month-chip:not([data-month="ALL"])').forEach(c => c.classList.remove('active'));
+    }
+    refreshAll();
+}
+
+function isSelected(m) { return selectedMonths.has(m); }
+function filteredSummary() { return monthlySummary.filter(d => isSelected(d.Month_str)); }
+function filteredDetail() { return detailRows.filter(d => isSelected(d.Month_str)); }
+function filteredAdtype() { return adtypeMonthly.filter(d => isSelected(d.Month_str)); }
+function filteredTargeting() { return targetingMonthly.filter(d => isSelected(d.Month_str)); }
+
+// ========== REFRESH ALL ==========
+function refreshAll() {
+    renderSummary();
+    renderDetail();
+    renderAdtype();
+    renderTargeting();
+}
+
+// ========== SUMMARY TAB ==========
+function renderSummary() {
+    const rows = filteredSummary();
+    const tot = rows.reduce((a,r) => {
+        a.Spend+=r.Spend; a.Sales+=r.Sales; a.Units+=r.Units; a.Impressions+=r.Impressions; a.Clicks+=r.Clicks; return a;
+    }, {Spend:0,Sales:0,Units:0,Impressions:0,Clicks:0});
+
+    document.getElementById('k-spend').textContent = fmtINR(tot.Spend);
+    document.getElementById('k-sales').textContent = fmtINR(tot.Sales);
+    document.getElementById('k-units').textContent = fmtNum(tot.Units);
+    const r = tot.Spend > 0 ? (tot.Sales/tot.Spend) : 0;
+    const kRoas = document.getElementById('k-roas');
+    kRoas.textContent = r.toFixed(2) + 'x';
+    kRoas.style.color = r >= 3 ? 'var(--green)' : r >= 1 ? 'var(--amber)' : 'var(--red)';
+
+    // Table
+    const tbody = document.getElementById('tbl-summary');
+    tbody.innerHTML = '';
+    rows.forEach(d => {
+        const r = roas(d.Sales, d.Spend);
+        tbody.innerHTML += '<tr>'
+            + '<td><strong>' + fmtMonth(d.Month_str) + '</strong></td>'
+            + '<td class="text-right metric">' + fmtNum(d.Impressions) + '</td>'
+            + '<td class="text-right metric">' + fmtNum(d.Clicks) + '</td>'
+            + '<td class="text-right metric">' + fmtINR(d.Spend) + '</td>'
+            + '<td class="text-right metric">' + fmtNum(d.Units) + '</td>'
+            + '<td class="text-right metric">' + fmtINR(d.Sales) + '</td>'
+            + '<td class="text-right metric">' + ctr(d.Clicks,d.Impressions) + '</td>'
+            + '<td class="text-right metric">' + cpc(d.Spend,d.Clicks) + '</td>'
+            + '<td class="text-right">' + roasBadge(r) + '</td>'
+            + '</tr>';
+    });
+    // Total row
+    tbody.innerHTML += '<tr class="row-grand">'
+        + '<td><strong>Total</strong></td>'
+        + '<td class="text-right metric">' + fmtNum(tot.Impressions) + '</td>'
+        + '<td class="text-right metric">' + fmtNum(tot.Clicks) + '</td>'
+        + '<td class="text-right metric">' + fmtINR(tot.Spend) + '</td>'
+        + '<td class="text-right metric">' + fmtNum(tot.Units) + '</td>'
+        + '<td class="text-right metric">' + fmtINR(tot.Sales) + '</td>'
+        + '<td class="text-right metric">' + ctr(tot.Clicks,tot.Impressions) + '</td>'
+        + '<td class="text-right metric">' + cpc(tot.Spend,tot.Clicks) + '</td>'
+        + '<td class="text-right">' + roasBadge(roas(tot.Sales,tot.Spend)) + '</td>'
+        + '</tr>';
+
+    // Trend chart
+    renderTrendChart(rows);
+    renderRoasChart(rows);
+}
+
+function renderTrendChart(rows) {
+    if (charts.trend) charts.trend.destroy();
+    const ctx = document.getElementById('chartTrend');
+    charts.trend = new Chart(ctx, {
+        type:'line',
+        data:{
+            labels: rows.map(d=>fmtMonth(d.Month_str)),
+            datasets:[
+                { label:'Spend', data:rows.map(d=>d.Spend), borderColor:'var(--primary)', backgroundColor:'rgba(28,191,187,0.1)', borderWidth:2.5, tension:0.35, fill:true, pointRadius:4, pointBackgroundColor:'#1CBFBB' },
+                { label:'Sales', data:rows.map(d=>d.Sales), borderColor:'#FF9800', backgroundColor:'rgba(255,152,0,0.08)', borderWidth:2.5, tension:0.35, fill:true, pointRadius:4, pointBackgroundColor:'#FF9800' }
+            ]
+        },
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            interaction:{ mode:'index', intersect:false },
+            plugins:{ legend:{ labels:{ font:{size:12, weight:'500'}, padding:16, usePointStyle:true, pointStyle:'circle' } } },
+            scales:{
+                x:{ ticks:{color:'var(--slate)'}, grid:{color:'#F1F5F9'} },
+                y:{ ticks:{callback:v=>fmtINR(v), color:'var(--slate)'}, grid:{color:'#F1F5F9'} }
+            }
+        }
+    });
+}
+
+function renderRoasChart(rows) {
+    if (charts.roas) charts.roas.destroy();
+    const ctx = document.getElementById('chartRoas');
+    const roasVals = rows.map(d => d.Spend > 0 ? d.Sales/d.Spend : 0);
+    const colors = roasVals.map(v => v >= 3 ? 'var(--green)' : v >= 1 ? 'var(--amber)' : 'var(--red)');
+    charts.roas = new Chart(ctx, {
+        type:'bar',
+        data:{
+            labels: rows.map(d=>fmtMonth(d.Month_str)),
+            datasets:[{ label:'ROAS', data:roasVals, backgroundColor:colors, borderRadius:4, barPercentage:0.6 }]
+        },
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            plugins:{
+                legend:{display:false},
+                tooltip:{ callbacks:{ label:ctx=>' ROAS: '+ctx.parsed.y.toFixed(2)+'x' } }
+            },
+            scales:{
+                x:{ ticks:{color:'var(--slate)'}, grid:{display:false} },
+                y:{ ticks:{callback:v=>v.toFixed(1)+'x', color:'var(--slate)'}, grid:{color:'#F1F5F9'},
+                     suggestedMin:0 }
+            }
+        }
+    });
+}
+
+// ========== MONTHLY DETAIL TAB ==========
+function renderDetail() {
+    const rows = filteredDetail();
+
+    // Aggregate by Ad_Type + Targeting_Group + Targeting_Type
+    const agg = {};
+    rows.forEach(r => {
+        const key = r.Ad_Type + '|' + r.Targeting_Group + '|' + r.Targeting_Type;
+        if (!agg[key]) agg[key] = {Ad_Type:r.Ad_Type, Targeting_Group:r.Targeting_Group, Targeting_Type:r.Targeting_Type, Impressions:0,Clicks:0,Spend:0,Units:0,Sales:0};
+        agg[key].Impressions += r.Impressions;
+        agg[key].Clicks += r.Clicks;
+        agg[key].Spend += r.Spend;
+        agg[key].Units += r.Units;
+        agg[key].Sales += r.Sales;
+    });
+
+    const adOrder = ['SP','SD','SB'];
+    const spOrder = [['Automatic','Close Match'],['Automatic','Loose Match'],['Automatic','Complements'],['Automatic','Substitutes'],
+                     ['Category','Category'],['Keyword','Brand Keyword'],['Keyword','TG1'],['Keyword','TG2'],['Keyword','TG3'],['Keyword','TG4'],
+                     ['Products','Brand Products'],['Products','Competitor Products']];
+    const sdOrder = [['Products','Brand Products'],['Products','Competitor Products'],['Category','Category'],
+                     ['Retargeting','Purchases'],['Retargeting','Views']];
+    const sbOrder = [['Category','Category'],['Products','Brand Products'],['Products','Competitor Products'],
+                     ['Keyword','Brand Keyword']];
+    const orderMap = {SP:spOrder, SD:sdOrder, SB:sbOrder};
+    const adPillClass = {SP:'sp',SD:'sd',SB:'sb'};
+    const adLabels = {SP:'Sponsored Products', SD:'Sponsored Display', SB:'Sponsored Brands'};
+
+    const tbody = document.getElementById('tbl-detail');
+    tbody.innerHTML = '';
+    let grandTot = {Impressions:0,Clicks:0,Spend:0,Units:0,Sales:0};
+    let brandKeySpend=0, brandKeySales=0, brandKeyImp=0, brandKeyClicks=0, brandKeyUnits=0;
+    let brandAdSpend=0, brandAdSales=0, brandAdImp=0, brandAdClicks=0, brandAdUnits=0;
+
+    adOrder.forEach(ad => {
+        // Header row
+        tbody.innerHTML += '<tr class="row-header"><td colspan="10"><span class="ad-pill '+adPillClass[ad]+'">'+ad+'</span> '+adLabels[ad]+'</td></tr>';
+        let adTot = {Impressions:0,Clicks:0,Spend:0,Units:0,Sales:0};
+        const order = orderMap[ad];
+        order.forEach(([grp, typ]) => {
+            const key = ad + '|' + grp + '|' + typ;
+            const d = agg[key];
+            if (!d || (d.Spend===0 && d.Impressions===0)) return;
+            adTot.Impressions+=d.Impressions; adTot.Clicks+=d.Clicks; adTot.Spend+=d.Spend; adTot.Units+=d.Units; adTot.Sales+=d.Sales;
+            const label = grp===typ ? grp : grp + ' — ' + typ;
+            const rv = roas(d.Sales,d.Spend);
+            tbody.innerHTML += '<tr class="row-'+ad.toLowerCase()+'">'
+                + '<td style="padding-left:28px">' + label + '</td>'
+                + '<td class="text-right metric">' + fmtNum(d.Impressions) + '</td>'
+                + '<td class="text-right metric">' + fmtNum(d.Clicks) + '</td>'
+                + '<td class="text-right metric">' + fmtINR(d.Spend) + '</td>'
+                + '<td class="text-right metric">' + fmtNum(d.Units) + '</td>'
+                + '<td class="text-right metric">' + fmtINR(d.Sales) + '</td>'
+                + '<td class="text-right metric">' + ctr(d.Clicks,d.Impressions) + '</td>'
+                + '<td class="text-right metric">' + cov(d.Units,d.Impressions) + '</td>'
+                + '<td class="text-right metric">' + cpc(d.Spend,d.Clicks) + '</td>'
+                + '<td class="text-right">' + roasBadge(rv) + '</td>'
+                + '</tr>';
+            // Track branded
+            if (typ === 'Brand Keyword') {
+                brandKeySpend+=d.Spend; brandKeySales+=d.Sales; brandKeyImp+=d.Impressions; brandKeyClicks+=d.Clicks; brandKeyUnits+=d.Units;
+                brandAdSpend+=d.Spend; brandAdSales+=d.Sales; brandAdImp+=d.Impressions; brandAdClicks+=d.Clicks; brandAdUnits+=d.Units;
+            }
+            if (typ === 'Brand Products') {
+                brandAdSpend+=d.Spend; brandAdSales+=d.Sales; brandAdImp+=d.Impressions; brandAdClicks+=d.Clicks; brandAdUnits+=d.Units;
+            }
+        });
+        grandTot.Impressions+=adTot.Impressions; grandTot.Clicks+=adTot.Clicks; grandTot.Spend+=adTot.Spend; grandTot.Units+=adTot.Units; grandTot.Sales+=adTot.Sales;
+        // Subtotal
+        const rv = roas(adTot.Sales,adTot.Spend);
+        tbody.innerHTML += '<tr class="row-total">'
+            + '<td><strong>' + ad + ' Total</strong></td>'
+            + '<td class="text-right metric">' + fmtNum(adTot.Impressions) + '</td>'
+            + '<td class="text-right metric">' + fmtNum(adTot.Clicks) + '</td>'
+            + '<td class="text-right metric">' + fmtINR(adTot.Spend) + '</td>'
+            + '<td class="text-right metric">' + fmtNum(adTot.Units) + '</td>'
+            + '<td class="text-right metric">' + fmtINR(adTot.Sales) + '</td>'
+            + '<td class="text-right metric">' + ctr(adTot.Clicks,adTot.Impressions) + '</td>'
+            + '<td class="text-right metric">' + cov(adTot.Units,adTot.Impressions) + '</td>'
+            + '<td class="text-right metric">' + cpc(adTot.Spend,adTot.Clicks) + '</td>'
+            + '<td class="text-right">' + roasBadge(rv) + '</td>'
+            + '</tr>';
+    });
+
+    // Grand Totals
+    function grandRow(label, tot) {
+        const rv = roas(tot.Sales,tot.Spend);
+        return '<tr class="row-grand">'
+            + '<td><strong>' + label + '</strong></td>'
+            + '<td class="text-right metric">' + fmtNum(tot.Impressions) + '</td>'
+            + '<td class="text-right metric">' + fmtNum(tot.Clicks) + '</td>'
+            + '<td class="text-right metric">' + fmtINR(tot.Spend) + '</td>'
+            + '<td class="text-right metric">' + fmtNum(tot.Units) + '</td>'
+            + '<td class="text-right metric">' + fmtINR(tot.Sales) + '</td>'
+            + '<td class="text-right metric">' + ctr(tot.Clicks,tot.Impressions) + '</td>'
+            + '<td class="text-right metric">' + cov(tot.Units,tot.Impressions) + '</td>'
+            + '<td class="text-right metric">' + cpc(tot.Spend,tot.Clicks) + '</td>'
+            + '<td class="text-right">' + roasBadge(rv) + '</td>'
+            + '</tr>';
+    }
+    tbody.innerHTML += grandRow('Grand Total', grandTot);
+    tbody.innerHTML += grandRow('Grand Total — Branded Keywords', {
+        Impressions:grandTot.Impressions-brandKeyImp, Clicks:grandTot.Clicks-brandKeyClicks,
+        Spend:grandTot.Spend-brandKeySpend, Units:grandTot.Units-brandKeyUnits, Sales:grandTot.Sales-brandKeySales
+    });
+    tbody.innerHTML += grandRow('Grand Total — Branded Advertising', {
+        Impressions:grandTot.Impressions-brandAdImp, Clicks:grandTot.Clicks-brandAdClicks,
+        Spend:grandTot.Spend-brandAdSpend, Units:grandTot.Units-brandAdUnits, Sales:grandTot.Sales-brandAdSales
+    });
+}
+
+// ========== AD TYPE TAB ==========
+function renderAdtype() {
+    const rows = filteredAdtype();
+    // Aggregate by ad type
+    const byAd = {};
+    rows.forEach(r => {
+        if (!byAd[r.Ad_Type]) byAd[r.Ad_Type] = {Impressions:0,Clicks:0,Spend:0,Units:0,Sales:0};
+        byAd[r.Ad_Type].Impressions+=r.Impressions; byAd[r.Ad_Type].Clicks+=r.Clicks;
+        byAd[r.Ad_Type].Spend+=r.Spend; byAd[r.Ad_Type].Units+=r.Units; byAd[r.Ad_Type].Sales+=r.Sales;
+    });
+
+    // KPI cards per ad type
+    const kpiDiv = document.getElementById('adtype-kpis');
+    kpiDiv.innerHTML = '';
+    const adColors = {SP:'var(--primary)',SD:'#FF9800',SB:'#7C3AED'};
+    const adNames = {SP:'Sponsored Products',SD:'Sponsored Display',SB:'Sponsored Brands'};
+    ['SP','SD','SB'].forEach(ad => {
+        const d = byAd[ad] || {Spend:0,Sales:0,Units:0,Impressions:0,Clicks:0};
+        const rv = roas(d.Sales,d.Spend);
+        kpiDiv.innerHTML += '<div class="kpi-card" style="--accent:'+adColors[ad]+'">'
+            + '<style>.kpi-card[style*="'+adColors[ad]+'"]::before{background:'+adColors[ad]+'}</style>'
+            + '<div class="kpi-label"><span class="ad-pill '+ad.toLowerCase()+'">'+ad+'</span> '+adNames[ad]+'</div>'
+            + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:8px">'
+            + '<div><div style="font-size:13px;color:var(--slate)">Spend</div><div style="font-size:20px;font-weight:700">'+fmtINR(d.Spend)+'</div></div>'
+            + '<div><div style="font-size:13px;color:var(--slate)">Sales</div><div style="font-size:20px;font-weight:700">'+fmtINR(d.Sales)+'</div></div>'
+            + '<div><div style="font-size:13px;color:var(--slate)">ROAS</div><div style="font-size:20px;font-weight:700">'+roasBadge(rv)+'</div></div>'
+            + '</div></div>';
+    });
+
+    // Table
+    const tbody = document.getElementById('tbl-adtype');
+    tbody.innerHTML = '';
+    let tot = {Impressions:0,Clicks:0,Spend:0,Units:0,Sales:0};
+    ['SP','SD','SB'].forEach(ad => {
+        const d = byAd[ad] || {Spend:0,Sales:0,Units:0,Impressions:0,Clicks:0};
+        tot.Impressions+=d.Impressions; tot.Clicks+=d.Clicks; tot.Spend+=d.Spend; tot.Units+=d.Units; tot.Sales+=d.Sales;
+        const rv = roas(d.Sales,d.Spend);
+        tbody.innerHTML += '<tr>'
+            + '<td><span class="ad-pill '+ad.toLowerCase()+'">'+ad+'</span></td>'
+            + '<td class="text-right metric">' + fmtNum(d.Impressions) + '</td>'
+            + '<td class="text-right metric">' + fmtNum(d.Clicks) + '</td>'
+            + '<td class="text-right metric">' + fmtINR(d.Spend) + '</td>'
+            + '<td class="text-right metric">' + fmtNum(d.Units) + '</td>'
+            + '<td class="text-right metric">' + fmtINR(d.Sales) + '</td>'
+            + '<td class="text-right metric">' + ctr(d.Clicks,d.Impressions) + '</td>'
+            + '<td class="text-right metric">' + cpc(d.Spend,d.Clicks) + '</td>'
+            + '<td class="text-right">' + roasBadge(rv) + '</td>'
+            + '</tr>';
+    });
+    tbody.innerHTML += '<tr class="row-grand"><td><strong>Total</strong></td>'
+        + '<td class="text-right metric">' + fmtNum(tot.Impressions) + '</td>'
+        + '<td class="text-right metric">' + fmtNum(tot.Clicks) + '</td>'
+        + '<td class="text-right metric">' + fmtINR(tot.Spend) + '</td>'
+        + '<td class="text-right metric">' + fmtNum(tot.Units) + '</td>'
+        + '<td class="text-right metric">' + fmtINR(tot.Sales) + '</td>'
+        + '<td class="text-right metric">' + ctr(tot.Clicks,tot.Impressions) + '</td>'
+        + '<td class="text-right metric">' + cpc(tot.Spend,tot.Clicks) + '</td>'
+        + '<td class="text-right">' + roasBadge(roas(tot.Sales,tot.Spend)) + '</td>'
+        + '</tr>';
+
+    // Stacked bar chart
+    renderAdtypeChart(rows);
+}
+
+function renderAdtypeChart(rows) {
+    if (charts.adtype) charts.adtype.destroy();
+    const ctx = document.getElementById('chartAdtype');
+    const months = [...new Set(rows.map(d=>d.Month_str))].sort();
+    const adTypes = ['SP','SD','SB'];
+    const colors = ['#1CBFBB','#FF9800','#7C3AED'];
+    const datasets = adTypes.map((ad,i) => ({
+        label: ad,
+        data: months.map(m => {
+            const r = rows.find(d=>d.Month_str===m && d.Ad_Type===ad);
+            return r ? r.Spend : 0;
+        }),
+        backgroundColor: colors[i],
+        borderRadius: 3,
+        stack: 'stack0'
+    }));
+    charts.adtype = new Chart(ctx, {
+        type:'bar',
+        data:{ labels:months.map(fmtMonth), datasets },
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            plugins:{ legend:{ labels:{ font:{size:12}, usePointStyle:true, pointStyle:'circle', padding:16 } } },
+            scales:{
+                x:{ stacked:true, ticks:{color:'var(--slate)'}, grid:{display:false} },
+                y:{ stacked:true, ticks:{callback:v=>fmtINR(v), color:'var(--slate)'}, grid:{color:'#F1F5F9'} }
+            }
+        }
+    });
+}
+
+// ========== TARGETING TAB ==========
+function renderTargeting() {
+    const rows = filteredTargeting();
+    // Aggregate by Targeting_Type
+    const byTgt = {};
+    rows.forEach(r => {
+        if (r.Targeting_Type === 'NA') return;
+        if (!byTgt[r.Targeting_Type]) byTgt[r.Targeting_Type] = {Impressions:0,Clicks:0,Spend:0,Units:0,Sales:0};
+        byTgt[r.Targeting_Type].Impressions+=r.Impressions; byTgt[r.Targeting_Type].Clicks+=r.Clicks;
+        byTgt[r.Targeting_Type].Spend+=r.Spend; byTgt[r.Targeting_Type].Units+=r.Units; byTgt[r.Targeting_Type].Sales+=r.Sales;
+    });
+
+    const sorted = Object.entries(byTgt).filter(([k,v]) => v.Spend > 0).sort((a,b) => b[1].Spend - a[1].Spend);
+
+    // Table
+    const tbody = document.getElementById('tbl-targeting');
+    tbody.innerHTML = '';
+    let tot = {Impressions:0,Clicks:0,Spend:0,Units:0,Sales:0};
+    sorted.forEach(([typ, d]) => {
+        tot.Impressions+=d.Impressions; tot.Clicks+=d.Clicks; tot.Spend+=d.Spend; tot.Units+=d.Units; tot.Sales+=d.Sales;
+        const rv = roas(d.Sales,d.Spend);
+        tbody.innerHTML += '<tr>'
+            + '<td><strong>' + typ + '</strong></td>'
+            + '<td class="text-right metric">' + fmtNum(d.Impressions) + '</td>'
+            + '<td class="text-right metric">' + fmtNum(d.Clicks) + '</td>'
+            + '<td class="text-right metric">' + fmtINR(d.Spend) + '</td>'
+            + '<td class="text-right metric">' + fmtNum(d.Units) + '</td>'
+            + '<td class="text-right metric">' + fmtINR(d.Sales) + '</td>'
+            + '<td class="text-right metric">' + ctr(d.Clicks,d.Impressions) + '</td>'
+            + '<td class="text-right metric">' + cpc(d.Spend,d.Clicks) + '</td>'
+            + '<td class="text-right">' + roasBadge(rv) + '</td>'
+            + '</tr>';
+    });
+    tbody.innerHTML += '<tr class="row-grand"><td><strong>Total</strong></td>'
+        + '<td class="text-right metric">' + fmtNum(tot.Impressions) + '</td>'
+        + '<td class="text-right metric">' + fmtNum(tot.Clicks) + '</td>'
+        + '<td class="text-right metric">' + fmtINR(tot.Spend) + '</td>'
+        + '<td class="text-right metric">' + fmtNum(tot.Units) + '</td>'
+        + '<td class="text-right metric">' + fmtINR(tot.Sales) + '</td>'
+        + '<td class="text-right metric">' + ctr(tot.Clicks,tot.Impressions) + '</td>'
+        + '<td class="text-right metric">' + cpc(tot.Spend,tot.Clicks) + '</td>'
+        + '<td class="text-right">' + roasBadge(roas(tot.Sales,tot.Spend)) + '</td>'
+        + '</tr>';
+
+    // Charts
+    renderTgtSpendChart(sorted);
+    renderTgtRoasChart(sorted);
+}
+
+function renderTgtSpendChart(sorted) {
+    if (charts.tgtSpend) charts.tgtSpend.destroy();
+    const ctx = document.getElementById('chartTgtSpend');
+    const palette = ['#1CBFBB','#0E9A97','#FF9800','#7C3AED','#E91E63','#3F51B5','#009688','#795548','#607D8B','#F44336','#4CAF50','#2196F3','#FF5722','#673AB7'];
+    charts.tgtSpend = new Chart(ctx, {
+        type:'bar',
+        data:{
+            labels: sorted.map(([k])=>k),
+            datasets:[{ data:sorted.map(([,v])=>v.Spend), backgroundColor:sorted.map((_,i)=>palette[i%palette.length]), borderRadius:4, barPercentage:0.7 }]
+        },
+        options:{
+            indexAxis:'y', responsive:true, maintainAspectRatio:false,
+            plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>' Spend: '+fmtINR(ctx.parsed.x)}} },
+            scales:{
+                x:{ ticks:{callback:v=>fmtINR(v), color:'var(--slate)'}, grid:{color:'#F1F5F9'} },
+                y:{ ticks:{color:'var(--near-black)', font:{size:12, weight:'500'}}, grid:{display:false} }
+            }
+        }
+    });
+}
+
+function renderTgtRoasChart(sorted) {
+    if (charts.tgtRoas) charts.tgtRoas.destroy();
+    const ctx = document.getElementById('chartTgtRoas');
+    const roasVals = sorted.map(([,v]) => v.Spend > 0 ? v.Sales/v.Spend : 0);
+    const colors = roasVals.map(v => v >= 3 ? 'var(--green)' : v >= 1 ? 'var(--amber)' : 'var(--red)');
+    charts.tgtRoas = new Chart(ctx, {
+        type:'bar',
+        data:{
+            labels: sorted.map(([k])=>k),
+            datasets:[{ data:roasVals, backgroundColor:colors, borderRadius:4, barPercentage:0.7 }]
+        },
+        options:{
+            indexAxis:'y', responsive:true, maintainAspectRatio:false,
+            plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>' ROAS: '+ctx.parsed.x.toFixed(2)+'x'}} },
+            scales:{
+                x:{ ticks:{callback:v=>v.toFixed(1)+'x', color:'var(--slate)'}, grid:{color:'#F1F5F9'} },
+                y:{ ticks:{color:'var(--near-black)', font:{size:12, weight:'500'}}, grid:{display:false} }
+            }
+        }
+    });
+}
+
+// ========== TAB SWITCHING ==========
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    });
+});
+
+// ========== INIT ==========
+window.addEventListener('DOMContentLoaded', () => {
+    initFilters();
+    refreshAll();
+});
+</script>
+</body>
+</html>
