@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow">
 <title>Elevens Coffee — Ads Performance Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -338,36 +340,79 @@ async function decryptData(password) {
     return JSON.parse(new TextDecoder().decode(dec));
 }
 
-// ── Password Check ──
+// ── Security: Attempt limiter & lockout ───────────────────
+let _attempts = 0;
+const MAX_ATTEMPTS = 5;
+
 async function checkPassword() {
-    const btn = document.getElementById('unlockBtn');
-    const input = document.getElementById('passwordInput').value;
-    btn.textContent = 'Decrypting...';
+    if (_attempts >= MAX_ATTEMPTS) {
+        showUnauthorized('Too many failed attempts. Please reload the page.');
+        return;
+    }
+    const pwField = document.getElementById('passwordInput');
+    const pw = pwField.value.trim();
+    if (!pw) { pwField.focus(); return; }
+
+    // Loading state
+    const btn = document.getElementById('unlockBtn') || document.querySelector('.password-box button');
+    const origText = btn.textContent;
+    btn.textContent = 'Decrypting\u2026';
     btn.disabled = true;
+
     try {
-        D = await decryptData(input);
+        D = await decryptData(pw);
+        // Success — render dashboard, wipe password from DOM
         document.getElementById('passwordOverlay').style.display = 'none';
         document.getElementById('dashboardContent').style.display = 'block';
-        sessionStorage.setItem('ns_elevens_ads_pwd', input);
+        pwField.value = '';
         initDashboard();
     } catch(e) {
-        document.getElementById('passwordError').style.display = 'block';
-        document.getElementById('passwordInput').value = '';
-        document.getElementById('passwordInput').focus();
-        btn.textContent = 'Unlock Dashboard';
+        // AES-GCM auth tag mismatch = wrong password
+        _attempts++;
+        D = null;
+        pwField.value = '';
+        pwField.focus();
+        const errEl = document.getElementById('passwordError');
+        if (_attempts >= MAX_ATTEMPTS) {
+            showUnauthorized('Access denied. Maximum attempts exceeded.');
+        } else {
+            errEl.textContent = 'Incorrect password. ' + (MAX_ATTEMPTS - _attempts) + ' attempt(s) remaining.';
+            errEl.style.display = 'block';
+        }
+        btn.textContent = origText;
         btn.disabled = false;
     }
 }
-(async function() {
-    const sp = sessionStorage.getItem('ns_elevens_ads_pwd');
-    if (sp) {
-        try {
-            D = await decryptData(sp);
-            document.getElementById('passwordOverlay').style.display = 'none';
-            document.getElementById('dashboardContent').style.display = 'block';
-            initDashboard();
-        } catch(e) { sessionStorage.removeItem('ns_elevens_ads_pwd'); }
-    }
+
+function showUnauthorized(msg) {
+    document.getElementById('passwordOverlay').innerHTML =
+        '<div class="password-box" style="text-align:center;">' +
+        '<div style="font-size:48px;margin-bottom:16px;">\uD83D\uDD12</div>' +
+        '<h2 style="color:#EB5757;">Unauthorized</h2>' +
+        '<p style="color:#7D7D7D;margin-top:12px;">' + msg + '</p>' +
+        '</div>';
+    D = null;
+}
+
+// ── NO auto-unlock: No sessionStorage, no localStorage, no URL hash ──
+// Fresh password required on every page load. Nothing is persisted.
+
+// ── Anti-scraping & anti-inspection defenses ──────────────
+(function(){
+    // Disable right-click context menu
+    document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+    // Disable common keyboard shortcuts (Ctrl+U, Ctrl+S, Ctrl+Shift+I, F12)
+    document.addEventListener('keydown', function(e){
+        if (e.key === 'F12') { e.preventDefault(); return false; }
+        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) { e.preventDefault(); return false; }
+        if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S')) { e.preventDefault(); return false; }
+    });
+    // Clear selection to prevent easy copy (allow inside tables for CSV)
+    document.addEventListener('selectstart', function(e){
+        if (document.getElementById('dashboardContent').style.display === 'block') {
+            if (!e.target.closest || !e.target.closest('table')) { e.preventDefault(); }
+        }
+    });
 })();
 
 // ── Utility Functions ──

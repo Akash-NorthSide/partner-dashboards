@@ -508,7 +508,7 @@ function showUnauthorized(msg) {
 // ── NO auto-unlock: No sessionStorage, no localStorage, no URL hash ──
 // Fresh password required on every page load. Nothing is persisted.
 
-// ── Anti-scraping & anti-inspection defenses ──────────────
+// ── Anti-scraping defenses (active from page load) ──────────────
 (function(){
     // Disable right-click context menu
     document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
@@ -518,24 +518,9 @@ function showUnauthorized(msg) {
         if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) { e.preventDefault(); return false; }
         if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S')) { e.preventDefault(); return false; }
     });
-    // Detect DevTools open via console.log timing (non-blocking)
-    let _devOpen = false;
-    const _devCheck = /./;
-    _devCheck.toString = function() {
-        if (!_devOpen) {
-            _devOpen = true;
-            D = null;
-            document.getElementById('dashboardContent').style.display = 'none';
-            document.getElementById('passwordOverlay').style.display = 'flex';
-            showUnauthorized('Developer tools detected. Dashboard locked for security.');
-        }
-        return '';
-    };
-    setInterval(function(){ console.log('%c', _devCheck); }, 4000);
-    // Clear selection to prevent easy copy
+    // Clear selection to prevent easy copy (allow inside tables for CSV)
     document.addEventListener('selectstart', function(e){
         if (document.getElementById('dashboardContent').style.display === 'block') {
-            // Allow selection only inside tables (for CSV copy)
             if (!e.target.closest || !e.target.closest('table')) { e.preventDefault(); }
         }
     });
