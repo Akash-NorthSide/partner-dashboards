@@ -327,8 +327,8 @@ function renderSummary(){
   html += `<tr class="total"><td>TOTAL</td><td class="r">${fmtINR(tg)}</td><td class="r">100.0%</td><td class="r">${fmtNum(tu)}</td><td class="r">${fmtINR(ts)}</td><td class="r">100.0%</td><td class="r">${fmtINR(tr)}</td><td class="r ${roasClass(R1)}">${fmtRoas(R1)}</td><td class="r ${roasClass(R2)}">${fmtRoas(R2)}</td></tr></tbody></table></div>`;
 
   // Tier mix
-  html += '<div class="section"><h3>Tier Performance <span class="note">Ad-Spend by pyramid tier · Apr vs May 1-31 (run-rate)</span></h3>';
-  html += '<table class="ns-table"><thead><tr><th>Tier</th><th class="r">Apr Spend</th><th class="r">May Spend</th><th class="r">May RR</th><th class="r">% Spend Share</th><th class="r">Apr ROAS</th><th class="r">May ROAS</th></tr></thead><tbody>';
+  html += '<div class="section"><h3>Tier Performance <span class="note">Ad-Spend by pyramid tier · Apr vs May 1-31</span></h3>';
+  html += '<table class="ns-table"><thead><tr><th>Tier</th><th class="r">Apr Spend</th><th class="r">May Spend</th><th class="r">% Spend Share</th><th class="r">Apr ROAS</th><th class="r">May ROAS</th></tr></thead><tbody>';
   let tApr=0,tMay=0,tMRR=0,tPlanS=0;const tierSnap={};
   for(const t of D.meta.tiers){
     const a=D.ads_tier_total.P1_Apr?.[t]||{spend:0,revenue:0};
@@ -343,9 +343,9 @@ function renderSummary(){
     const variance=plan>0?(mRR-plan)/plan*100:null;
     const cls=variance===null?'':(Math.abs(variance)<15?'roas-good':(variance>0?'roas-mid':'roas-bad'));
     const aR=a.spend>0?a.revenue/a.spend:0,mR=m.spend>0?m.revenue/m.spend:0;
-    html += `<tr><td><span class="tier-pill" style="background:${D.meta.tier_colors[t]}">${D.meta.tier_labels[t]}</span></td><td class="r">${fmtINR(a.spend)}</td><td class="r">${fmtINR(m.spend)}</td><td class="r">${fmtINR(mRR)}</td><td class="r">${fmtPctShare(sShare)}</td><td class="r ${roasClass(aR)}">${fmtRoas(aR)}</td><td class="r ${roasClass(mR)}">${fmtRoas(mR)}</td></tr>`;
+    html += `<tr><td><span class="tier-pill" style="background:${D.meta.tier_colors[t]}">${D.meta.tier_labels[t]}</span></td><td class="r">${fmtINR(a.spend)}</td><td class="r">${fmtINR(m.spend)}</td><td class="r">${fmtPctShare(sShare)}</td><td class="r ${roasClass(aR)}">${fmtRoas(aR)}</td><td class="r ${roasClass(mR)}">${fmtRoas(mR)}</td></tr>`;
   }
-  html += `<tr class="total"><td>TOTAL</td><td class="r">${fmtINR(tApr)}</td><td class="r">${fmtINR(tMay)}</td><td class="r">${fmtINR(tMRR)}</td><td class="r">100.0%</td><td class="r">—</td><td class="r">—</td></tr></tbody></table></div>`;
+  html += `<tr class="total"><td>TOTAL</td><td class="r">${fmtINR(tApr)}</td><td class="r">${fmtINR(tMay)}</td><td class="r">100.0%</td><td class="r">—</td><td class="r">—</td></tr></tbody></table></div>`;
 
   // Cross-platform top 50 keywords
   if(D.cross_keywords && D.cross_keywords.length){
@@ -538,8 +538,8 @@ function renderPlatform(pl){
   html += `<div class="kpi-card"><div class="kpi-label">Ad-Driven Share</div><div class="kpi-value" style="font-size:1.2rem;">${sales.gmv>0?fmtPct(ads.revenue/sales.gmv*100):'—'}</div><div class="kpi-sub">Ad-Revenue / GMV</div></div>`;
   html += '</div>';
 
-  html += '<div class="section"><h3>Ad-Spend by Tier <span class="note">Apr vs May 1-31 (run-rate)</span></h3>';
-  html += '<table class="ns-table"><thead><tr><th>Tier</th><th class="r">Apr Spend</th><th class="r">May Spend</th><th class="r">May RR</th><th class="r">% Spend Share</th><th class="r">May ROAS</th></tr></thead><tbody>';
+  html += '<div class="section"><h3>Ad-Spend by Tier <span class="note">Apr vs May 1-31</span></h3>';
+  html += '<table class="ns-table"><thead><tr><th>Tier</th><th class="r">Apr Spend</th><th class="r">May Spend</th><th class="r">% Spend Share</th><th class="r">May ROAS</th></tr></thead><tbody>';
   let tApr=0,tMay=0,tMRR=0,tPlanS=0;const tierRows=[];
   for(const t of D.meta.tiers){
     const a=D.ads_pt[pl]?.[`P1_Apr|${t}`]||{spend:0,revenue:0};
@@ -553,9 +553,9 @@ function renderPlatform(pl){
     const variance=plan>0?(mRR-plan)/plan*100:null;
     const cls=variance===null?'':(Math.abs(variance)<15?'roas-good':(variance>0?'roas-mid':'roas-bad'));
     const mR=m.spend>0?m.revenue/m.spend:0;
-    html+=`<tr><td><span class="tier-pill" style="background:${D.meta.tier_colors[t]}">${D.meta.tier_labels[t]}</span></td><td class="r">${fmtINR(a.spend)}</td><td class="r">${fmtINR(m.spend)}</td><td class="r">${fmtINR(mRR)}</td><td class="r">${fmtPctShare(sShare)}</td><td class="r ${roasClass(mR)}">${fmtRoas(mR)}</td></tr>`;
+    html+=`<tr><td><span class="tier-pill" style="background:${D.meta.tier_colors[t]}">${D.meta.tier_labels[t]}</span></td><td class="r">${fmtINR(a.spend)}</td><td class="r">${fmtINR(m.spend)}</td><td class="r">${fmtPctShare(sShare)}</td><td class="r ${roasClass(mR)}">${fmtRoas(mR)}</td></tr>`;
   }
-  html+=`<tr class="total"><td>TOTAL</td><td class="r">${fmtINR(tApr)}</td><td class="r">${fmtINR(tMay)}</td><td class="r">${fmtINR(tMRR)}</td><td class="r">100.0%</td><td class="r">—</td></tr></tbody></table></div>`;
+  html+=`<tr class="total"><td>TOTAL</td><td class="r">${fmtINR(tApr)}</td><td class="r">${fmtINR(tMay)}</td><td class="r">100.0%</td><td class="r">—</td></tr></tbody></table></div>`;
 
   // Keywords
   const kws=D.keywords[pl]||[];
@@ -671,7 +671,7 @@ function renderPlatform(pl){
     if(a+m<1) continue;
     tierLabels.push(D.meta.tier_labels[t]);aprSp.push(a);maySp.push(m*D.meta.rr_factor);
   }
-  charts.tierChart=new Chart(document.getElementById('chart-platform-tiers'),{type:'bar',data:{labels:tierLabels,datasets:[{label:'Apr',data:aprSp,backgroundColor:'#7D7D7D'},{label:'May RR',data:maySp,backgroundColor:'#1CBFBB'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{ticks:{callback:v=>fmtINR(v)}}}}});
+  charts.tierChart=new Chart(document.getElementById('chart-platform-tiers'),{type:'bar',data:{labels:tierLabels,datasets:[{label:'Apr',data:aprSp,backgroundColor:'#7D7D7D'},{label:'May',data:maySp,backgroundColor:'#1CBFBB'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{ticks:{callback:v=>fmtINR(v)}}}}});
 }
 </script>
 </body></html>
