@@ -158,7 +158,7 @@ let cur='summary';
 function render(){
   var TABS=TABSETS[VIEW];
   if(!TABS.some(function(t){return t[0]===cur;})) cur=TABS[0][0];
-  document.getElementById('hSub').textContent=D.platform+' · '+D.period;
+  document.getElementById('hSub').textContent=D.platform+' · '+D.period+' · Revenue basis: Amazon MTR (tax) report — invoice value, net of promotions';
   document.getElementById('hMeta').innerHTML='Confidential · NorthSide&reg;<br>'+D.period;
   document.getElementById('banner').innerHTML = '<b>NorthSide read —</b> '+((VIEW==='v2')?avHeadline():D.hero.headline);
   const L=D.links||{};
