@@ -12,7 +12,7 @@
     --ns-teal: #1CBFBB; --ns-teal-light: #52BFBC; --ns-teal-dark: #369290;
     --ns-black: #020202; --ns-white: #FFFFFF; --ns-grey: #7D7D7D;
     --ns-grey-light: #F2F2F2; --ns-grey-warm: #E6E4E4;
-    --ns-green: #27AE60; --ns-amber: #F2994A; --ns-red: #EB5757;
+    --ns-green: #27AE60; --ns-amber: #F2994A; --ns-red: #E67E22;
     --amz: #FF9900; --amz-light: #FFB84D; --amz-dark: #CC7A00;
     --sp-color: #1CBFBB; --sd-color: #FF9900; --sb-color: #6C2DC7;
 }
@@ -71,6 +71,12 @@ td { padding:9px 8px; border-bottom:1px solid #eee; }
 tr:hover { background:#f9f9f9; }
 tr.total-row { background:var(--ns-grey-light); font-weight:700; border-top:2px solid #ddd; }
 tr.total-row:hover { background:var(--ns-grey-light); }
+tr.tp1 td { background:rgba(28,191,187,0.22)!important; }
+tr.tp2 td { background:rgba(28,191,187,0.13)!important; }
+tr.tp3 td { background:rgba(28,191,187,0.06)!important; }
+tr.tp1 td:first-child { box-shadow:inset 4px 0 0 #1CBFBB; font-weight:700; }
+tr.tp2 td:first-child { box-shadow:inset 4px 0 0 rgba(28,191,187,.65); }
+tr.tp3 td:first-child { box-shadow:inset 4px 0 0 rgba(28,191,187,.40); }
 .csv-btn { padding:4px 10px; background:var(--ns-teal); color:var(--ns-white); border:none; border-radius:4px; cursor:pointer; font-size:11px; margin-left:auto; }
 .csv-btn:hover { background:var(--ns-teal-dark); }
 .roas-green { color:var(--ns-green); font-weight:600; }
@@ -420,7 +426,7 @@ function fmtPct(v) { return v.toFixed(1) + '%'; }
 function safeDiv(a, b) { return b > 0 ? a/b : 0; }
 function fmtRoas(v) {
     const t = isFinite(v) ? v.toFixed(2) + 'x' : '0.00x';
-    if (v >= 3) return '<span class="roas-green">' + t + '</span>';
+    if (v >= 1) return '<span class="roas-green">' + t + '</span>';
     if (v >= 1) return '<span class="roas-amber">' + t + '</span>';
     return '<span class="roas-red">' + t + '</span>';
 }
@@ -651,7 +657,7 @@ function renderAll() {
 
     // Monthly Spend vs Sales chart
     const mLabels = mo.map(m=>m.month);
-    makeBarLine('summaryMonthlyChart','summaryMonthly', mLabels, mo.map(m=>m.spend), mo.map(m=>m.sales), 'Ad Spend','Ad Sales (14d)','#EB575766','#1CBFBB');
+    makeBarLine('summaryMonthlyChart','summaryMonthly', mLabels, mo.map(m=>m.spend), mo.map(m=>m.sales), 'Ad Spend','Ad Sales (14d)','#F2994A66','#1CBFBB');
 
     // ROAS trend
     makeRoasLine('summaryRoasChart','summaryRoas', mLabels, mo.map(m=>m.roas));
@@ -812,6 +818,27 @@ function _revMonthTables(){ try{ var tbs=document.querySelectorAll('table');
     var data=rows.filter(function(r){return !r.classList.contains('total-row');}); var tot=rows.filter(function(r){return r.classList.contains('total-row');});
     if(data.length<2)continue; data.reverse(); tb.innerHTML=''; data.concat(tot).forEach(function(r){tb.appendChild(r);}); }
 }catch(e){console.warn('revMonth',e);} }
-if(typeof renderAll==='function'){var _oRA=renderAll; renderAll=function(){_oRA.apply(this,arguments); _revMonthTables(); _addProj();};}
+window.highlightTop=function(){try{
+  var PRI=[/revenue|ad sales|^sales\b|spend/i,/orders/i,/qty|units|clicks/i];
+  function num(t){ if(t==null)return NaN; t=(''+t).replace(/,/g,'').replace(/₹/g,'').trim(); var m=t.match(/-?\d*\.?\d+/); if(!m)return NaN; var v=parseFloat(m[0]); if(isNaN(v))return NaN; if(/cr/i.test(t))v*=1e7; else if(/lakh/i.test(t)||/l(?![a-z])/i.test(t))v*=1e5; else if(/k/i.test(t))v*=1e3; return v; }
+  function pick(ths){ var L=[].map.call(ths,function(th){return th.textContent.trim();}); for(var p=0;p<PRI.length;p++){ for(var i=0;i<L.length;i++){ if(PRI[p].test(L[i]) && !/%|acos|cpc|cpm|ctr|cac|aov|share|mom|discount/i.test(L[i])) return i; } } return -1; }
+  var MON=/(^|[^a-z])(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)['’\s]?\d{2}/i;
+  function totalCol(L){ for(var i=L.length-1;i>=0;i--){ if(/total/i.test(L[i])) return i; } return -1; }
+  var tables=document.querySelectorAll('table');
+  for(var t=0;t<tables.length;t++){ var tbl=tables[t], body=tbl.querySelector('tbody'); if(!body)continue;
+    var allrows=[].slice.call(body.querySelectorAll('tr')); allrows.forEach(function(r){r.classList.remove('tp1','tp2','tp3');});
+    var head=tbl.querySelector('thead'); if(!head)continue; var ths=head.querySelectorAll('th'); if(!ths.length)continue;
+    var L=[].map.call(ths,function(x){return x.textContent.trim();}); var first=L[0];
+    if(/region\s*\/\s*tier/i.test(first))continue;
+    var mc=L.filter(function(l){return MON.test(l);}).length; var col,time=false;
+    if(mc>=3){ col=totalCol(L); } else { col=pick(ths); if(col<0)col=totalCol(L); time=/^(month|period|quarter)/i.test(first); }
+    if(col<0)continue;
+    var data=allrows.filter(function(r){ return !r.classList.contains('total-row') && r.cells.length>col && !/^total/i.test((r.cells[0].textContent||'').trim()); });
+    var sc=data.map(function(r){return {r:r,v:num(r.cells[col].textContent)};}).filter(function(o){return !isNaN(o.v);});
+    sc.sort(function(a,b){return b.v-a.v;}); var n=time?1:3;
+    for(var i=0;i<Math.min(n,sc.length);i++){ sc[i].r.classList.add('tp'+(i+1)); }
+  }
+}catch(e){console.warn('highlightTop',e);}};
+if(typeof renderAll==='function'){var _oRA=renderAll; renderAll=function(){_oRA.apply(this,arguments); _revMonthTables(); _addProj(); highlightTop();};}
 </script></body>
 </html>

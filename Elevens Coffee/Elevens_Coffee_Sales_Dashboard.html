@@ -12,7 +12,7 @@
             --ns-teal: #1CBFBB; --ns-teal-light: #52BFBC; --ns-teal-dark: #369290;
             --ns-black: #020202; --ns-white: #FFFFFF; --ns-grey: #7D7D7D;
             --ns-grey-light: #F2F2F2; --ns-grey-warm: #E6E4E4;
-            --ns-green: #27AE60; --ns-amber: #F2994A; --ns-red: #EB5757;
+            --ns-green: #27AE60; --ns-amber: #F2994A; --ns-red: #E67E22;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Segoe UI','Calibri',sans-serif; background:var(--ns-grey-light); color:#333; }
@@ -66,6 +66,12 @@
         .table-container td { padding:10px 8px; border-bottom:1px solid #eee; }
         .table-container tr:hover { background:var(--ns-grey-light); }
         .table-container tr.total-row { background:var(--ns-grey-light); font-weight:600; border-top:2px solid #ddd; }
+        tr.tp1 td { background:rgba(28,191,187,0.22)!important; }
+        tr.tp2 td { background:rgba(28,191,187,0.13)!important; }
+        tr.tp3 td { background:rgba(28,191,187,0.06)!important; }
+        tr.tp1 td:first-child { box-shadow:inset 4px 0 0 #1CBFBB; font-weight:700; }
+        tr.tp2 td:first-child { box-shadow:inset 4px 0 0 rgba(28,191,187,.65); }
+        tr.tp3 td:first-child { box-shadow:inset 4px 0 0 rgba(28,191,187,.40); }
         .csv-btn { padding:4px 10px; background:var(--ns-teal); color:var(--ns-white); border:none; border-radius:4px; cursor:pointer; font-size:11px; }
         .csv-btn:hover { background:var(--ns-teal-dark); }
         /* Tab content */
@@ -694,7 +700,7 @@ function renderAll() {
                 let html = '';
                 let totRev = 0, totSpend = 0, totAdSales = 0, totUnits = 0;
                 D.ads_by_collection_jun.forEach(c => {
-                    const roasColor = c.broas >= 2 ? '#22C55E' : (c.broas >= 1 ? '#F59E0B' : '#EF4444');
+                    const roasColor = c.broas >= 1 ? '#22C55E' : (c.broas >= 1 ? '#F59E0B' : '#E67E22');
                     html += `<tr>
                         <td><strong>${c.collection}</strong></td>
                         <td>${fmtINR(c.sales_revenue)}</td>
@@ -727,7 +733,7 @@ function renderAll() {
         if (mbody) {
             let html = '';
             D.ads_monthly.forEach(m => {
-                const roasColor = m.broas >= 1.5 ? '#22C55E' : (m.broas >= 1 ? '#F59E0B' : '#EF4444');
+                const roasColor = m.broas >= 1.5 ? '#22C55E' : (m.broas >= 1 ? '#F59E0B' : '#E67E22');
                 html += `<tr>
                     <td><strong>${m.month}</strong></td>
                     <td>${fmtINR(m.revenue)}</td>
@@ -1010,7 +1016,28 @@ function renderExtras(){ try{
   }catch(e){}
 _addProj();
 }catch(e){console.warn('renderExtras',e);} }
-if(typeof renderAll==='function'){var _oRA=renderAll; renderAll=function(){_oRA.apply(this,arguments); renderExtras();};}
+window.highlightTop=function(){try{
+  var PRI=[/revenue|ad sales|^sales\b|spend/i,/orders/i,/qty|units/i];
+  function num(t){ if(t==null)return NaN; t=(''+t).replace(/,/g,'').replace(/₹/g,'').trim(); var m=t.match(/-?\d*\.?\d+/); if(!m)return NaN; var v=parseFloat(m[0]); if(isNaN(v))return NaN; if(/cr/i.test(t))v*=1e7; else if(/lakh/i.test(t)||/l(?![a-z])/i.test(t))v*=1e5; else if(/k/i.test(t))v*=1e3; return v; }
+  function pick(ths){ var L=[].map.call(ths,function(th){return th.textContent.trim();}); for(var p=0;p<PRI.length;p++){ for(var i=0;i<L.length;i++){ if(PRI[p].test(L[i]) && !/%|acos|cpc|cpm|ctr|cac|aov|share|mom|discount/i.test(L[i])) return i; } } return -1; }
+  var MON=/(^|[^a-z])(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)['’\s]?\d{2}/i;
+  function totalCol(L){ for(var i=L.length-1;i>=0;i--){ if(/total/i.test(L[i])) return i; } return -1; }
+  var tables=document.querySelectorAll('table');
+  for(var t=0;t<tables.length;t++){ var tbl=tables[t], body=tbl.querySelector('tbody'); if(!body)continue;
+    var allrows=[].slice.call(body.querySelectorAll('tr')); allrows.forEach(function(r){r.classList.remove('tp1','tp2','tp3');});
+    var head=tbl.querySelector('thead'); if(!head)continue; var ths=head.querySelectorAll('th'); if(!ths.length)continue;
+    var L=[].map.call(ths,function(x){return x.textContent.trim();}); var first=L[0];
+    if(/region\s*\/\s*tier/i.test(first))continue;
+    var mc=L.filter(function(l){return MON.test(l);}).length; var col,time=false;
+    if(mc>=3){ col=totalCol(L); } else { col=pick(ths); if(col<0)col=totalCol(L); time=/^(month|period|quarter)/i.test(first); }
+    if(col<0)continue;
+    var data=allrows.filter(function(r){ return !r.classList.contains('total-row') && r.cells.length>col && !/^total/i.test((r.cells[0].textContent||'').trim()); });
+    var sc=data.map(function(r){return {r:r,v:num(r.cells[col].textContent)};}).filter(function(o){return !isNaN(o.v);});
+    sc.sort(function(a,b){return b.v-a.v;}); var n=time?1:3;
+    for(var i=0;i<Math.min(n,sc.length);i++){ sc[i].r.classList.add('tp'+(i+1)); }
+  }
+}catch(e){console.warn('highlightTop',e);}};
+if(typeof renderAll==='function'){var _oRA=renderAll; renderAll=function(){_oRA.apply(this,arguments); renderExtras(); highlightTop();};}
 </script>
 </body>
 </html>
