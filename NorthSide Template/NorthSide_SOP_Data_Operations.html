@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NorthSide SOP — Data Operations — SAMPLE v2</title>
+<style>
+  :root{
+    --teal:#1CBFBB; --teal-dark:#149B98; --teal-soft:#E4F7F6;
+    --ink:#020202; --ink-2:#3A3F45; --ink-3:#6B7178;
+    --bg:#F7F8F9; --card:#FFFFFF; --line:#E3E6E9; --footer:#E6E4E4;
+    --amber:#E8A33D; --amber-soft:#FBF1DE; --amber-ink:#7A5410;
+    --coral:#E2635C; --coral-soft:#FBE9E8;
+    --violet:#7A6FF0; --violet-soft:#EEECFD;
+    --slate:#5B7A99; --slate-soft:#E9F0F6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Metropolis,Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;font-size:15px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px 60px}
+
+  header{background:var(--ink);color:#fff;padding:34px 0 30px;border-bottom:4px solid var(--teal)}
+  header .wrap{padding-bottom:0;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand .sq{width:16px;height:16px;background:var(--teal);flex:0 0 auto}
+  .brand .nm{font-size:20px;font-weight:700;letter-spacing:.4px}
+  h1{font-size:26px;font-weight:700;margin-top:10px}
+  .sub{color:#B9BEC4;font-size:14px;margin-top:6px;max-width:640px}
+  .pill{display:inline-block;background:var(--teal);color:var(--ink);font-weight:700;font-size:12px;padding:4px 12px;border-radius:999px;letter-spacing:.5px}
+  .pill.gray{background:#3A3F45;color:#fff}
+  .pill.amber{background:var(--amber);color:#3A2A05}
+
+  nav{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 1px 6px rgba(2,2,2,.05)}
+  nav .wrap{display:flex;gap:6px;overflow-x:auto;padding:10px 28px}
+  nav a{white-space:nowrap;text-decoration:none;color:var(--ink-2);font-size:13px;font-weight:600;padding:7px 13px;border-radius:8px}
+  nav a:hover{background:var(--teal-soft);color:var(--teal-dark)}
+
+  section{margin-top:48px}
+  h2{font-size:20px;font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  h2 .sq{width:12px;height:12px;background:var(--teal)}
+  .lede{color:var(--ink-3);font-size:14px;margin-bottom:20px;max-width:880px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
+
+  /* Roles */
+  .roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .role{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .role .who{font-size:12px;font-weight:700;letter-spacing:.6px;padding:3px 10px;border-radius:999px;display:inline-block;margin-bottom:8px}
+  .role.a .who{background:var(--teal-soft);color:var(--teal-dark)}
+  .role.d .who{background:var(--slate-soft);color:var(--slate)}
+  .role.b .who{background:var(--amber-soft);color:var(--amber-ink)}
+  .role b{display:block;font-size:15px;margin-bottom:4px}
+  .role span{font-size:13px;color:var(--ink-2)}
+
+  /* Journey strip */
+  .journey{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .jstep{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 14px 6px 6px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+  .jstep .n{width:24px;height:24px;border-radius:50%;color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .jstep.a .n{background:var(--teal-dark)} .jstep.d .n{background:var(--slate)} .jstep.b .n{background:var(--amber)} .jstep.q .n{background:var(--violet)}
+  .jarrow{align-self:center;color:var(--ink-3);font-weight:700}
+
+  /* Tables */
+  .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+  table{border-collapse:collapse;width:100%;min-width:900px;font-size:13px}
+  th{background:var(--ink);color:#fff;text-align:left;padding:11px 12px;font-size:12px;letter-spacing:.4px}
+  td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+  td:first-child{font-weight:700;color:var(--ink)}
+  tr:nth-child(even) td{background:#FAFBFC}
+  .hl{background:var(--teal-soft)!important;border-radius:6px;padding:1px 6px;font-weight:700;color:var(--teal-dark);display:inline-block}
+  .warn{background:var(--coral-soft);border-radius:6px;padding:1px 6px;font-weight:600;color:#8C2F2A;display:inline-block;font-size:12px}
+
+  /* Swimlanes */
+  .lanes{display:grid;grid-template-columns:1fr .9fr 1fr;gap:18px;align-items:start}
+  .lane{border-radius:14px;padding:16px;border:1.5px solid var(--line)}
+  .lane.a{background:linear-gradient(180deg,var(--teal-soft),#fff 120px)}
+  .lane.d{background:linear-gradient(180deg,var(--slate-soft),#fff 120px)}
+  .lane.b{background:linear-gradient(180deg,var(--amber-soft),#fff 120px)}
+  .lane h3{font-size:15px;display:flex;align-items:center;gap:8px;margin-bottom:4px}
+  .lane .cad{font-size:12px;color:var(--ink-3);font-weight:600;margin-bottom:14px}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .lane.a .dot{background:var(--teal-dark)} .lane.d .dot{background:var(--slate)} .lane.b .dot{background:var(--amber)}
+  .step{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;position:relative;box-shadow:0 1px 3px rgba(2,2,2,.04)}
+  .step+.step,.step+.conn{margin-top:0}
+  .conn{width:2px;height:20px;background:var(--ink-3);margin:0 auto;position:relative}
+  .conn::after{content:"";position:absolute;bottom:-1px;left:-4px;border:5px solid transparent;border-top:7px solid var(--ink-3)}
+  .step .sn{position:absolute;top:-10px;left:-10px;width:26px;height:26px;border-radius:50%;color:#fff;font-weight:700;font-size:12.5px;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+  .lane.a .sn{background:var(--teal-dark)} .lane.d .sn{background:var(--slate)} .lane.b .sn{background:var(--amber)}
+  .step b{display:block;font-size:13.5px;margin-bottom:3px}
+  .step span{font-size:12.5px;color:var(--ink-2);display:block}
+  .step .chk{margin-top:7px;font-size:11.5px;color:var(--teal-dark);font-weight:700}
+  .xlink{margin-top:7px;font-size:11px;font-weight:700;letter-spacing:.3px;display:inline-block;border-radius:6px;padding:2px 8px}
+  .xlink.to-d{background:var(--slate-soft);color:var(--slate)}
+  .xlink.to-b{background:var(--amber-soft);color:var(--amber-ink)}
+  .xlink.to-a{background:var(--teal-soft);color:var(--teal-dark)}
+  .hub{background:#fff;border:2px solid var(--slate);border-radius:12px;padding:14px;text-align:center;font-weight:700;font-size:14px}
+  .hub small{display:block;font-weight:500;font-size:12px;color:var(--ink-3);margin-top:4px}
+  .milestone{border:1.5px solid var(--coral);background:var(--coral-soft)}
+
+  /* Gantt */
+  .gantt{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--card);padding:18px 18px 10px}
+  .ggrid{display:grid;align-items:center}
+  .ghead{font-size:10.5px;color:var(--ink-3);text-align:center;padding:4px 0;border-bottom:1px solid var(--line);font-weight:600}
+  .glabel{font-size:12.5px;font-weight:600;color:var(--ink);padding:9px 10px 9px 0;border-bottom:1px solid #F0F2F4}
+  .glabel small{display:block;color:var(--ink-3);font-weight:500;font-size:11px}
+  .gcell{height:100%;border-bottom:1px solid #F0F2F4;border-left:1px dashed #F0F2F4;position:relative;min-height:38px}
+  .gbar{position:absolute;top:50%;transform:translateY(-50%);height:16px;left:2px;right:2px}
+  .gbar.t{background:var(--teal)} .gbar.s{background:var(--slate)} .gbar.a{background:var(--amber)}
+  .gbar.v{background:var(--violet)} .gbar.td{background:var(--teal-dark)} .gbar.k{background:var(--ink-2)}
+  .gms{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(45deg);width:13px;height:13px;background:var(--coral);border-radius:2px}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:12px;color:var(--ink-2)}
+  .legend i{display:inline-block;width:14px;height:10px;border-radius:3px;margin-right:6px}
+
+  /* Segment cards */
+  .gates{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+  .gate{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--teal);border-radius:12px;padding:16px 18px}
+  .gate b{font-size:14px;display:block;margin-bottom:4px}
+  .gate span{font-size:13px;color:var(--ink-2)}
+  .gate .kamonly{margin-top:8px;display:inline-block;background:var(--coral-soft);color:#8C2F2A;font-size:11px;font-weight:700;border-radius:6px;padding:2px 8px}
+
+  .notice{background:var(--amber-soft);border:1.5px solid var(--amber);border-radius:12px;padding:14px 18px;font-size:13.5px;margin-top:18px}
+  .notice b{color:var(--amber-ink)}
+  .proposed{display:inline-block;background:var(--violet-soft);color:var(--violet);font-weight:700;font-size:11px;letter-spacing:.5px;border-radius:6px;padding:3px 9px;vertical-align:middle;margin-left:8px}
+
+  /* Framework SVG box */
+  .fw{display:grid;grid-template-columns:minmax(320px,1.2fr) 1fr;gap:22px;align-items:center}
+  .fw .exp li{font-size:13.5px;color:var(--ink-2);margin:8px 0 8px 16px}
+  code{background:#F0F2F4;border-radius:5px;padding:1px 6px;font-size:12px}
+
+  /* Glossary */
+  .glo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+  .glo div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--ink-2)}
+  .glo b{color:var(--ink)}
+
+  footer{margin-top:60px;background:var(--footer);border-top:3px solid var(--teal);padding:20px 0;color:var(--ink-2);font-size:12.5px}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-bottom:0}
+
+  @media (max-width:980px){.lanes{grid-template-columns:1fr}.fw{grid-template-columns:1fr}}
+  @media print{nav{display:none}body{background:#fff}section{break-inside:avoid-page}header{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div>
+      <div class="brand"><div class="sq"></div><div class="nm">NorthSide</div></div>
+      <h1>Data Operations SOP — How Our Data Moves</h1>
+      <div class="sub">From platform panels → Shikha's DSR for the client → the brand's Google Drive → the KAM's AI analysis. Written so anyone joining the team tomorrow can run it.</div>
+    </div>
+    <div style="text-align:right">
+      <span class="pill">INTERNAL — TEAM USE</span><br><br>
+      <span class="pill amber">SAMPLE v2 — AWAITING FEEDBACK</span><br><br>
+      <span class="pill gray">24.08.2026 · SOP-1</span>
+    </div>
+  </div>
+</header>
+
+<nav><div class="wrap">
+  <a href="#why">Why & Who</a>
+  <a href="#reports">The 5 Reports</a>
+  <a href="#flow">Swimlane Flow</a>
+  <a href="#matrix">Download Matrix</a>
+  <a href="#naming">Naming Standard</a>
+  <a href="#gantt">Rhythms (Gantt)</a>
+  <a href="#excel">Clean Excel — 6 Segments</a>
+  <a href="#gates">Quality Checks</a>
+  <a href="#glossary">Glossary</a>
+</div></nav>
+
+<div class="wrap">
+
+<!-- WHY & WHO -->
+<section id="why">
+  <h2><span class="sq"></span>Why this process exists, and who runs it</h2>
+  <p class="lede">Clients pay NorthSide to know their numbers and grow them. That only works if every brand's data moves the same way, every week, no matter who is handling it. One broken link in the chain = a client seeing wrong or late numbers.</p>
+  <div class="roles">
+    <div class="role a"><span class="who">TRACK A — WEEKLY / BIWEEKLY</span><b>Shikha — Data &amp; DSR owner</b><span>Logs into every platform panel, downloads daily sales / stock / spend, updates the live DSR, shares it with the client, and files everything on the brand's Google Drive.</span></div>
+    <div class="role d"><span class="who">THE RECORD STORE</span><b>Google Drive — brand-level links</b><span>The single shared home for every raw file and working sheet. Upload after every download; download from here for any analysis. If it's not on Drive, it didn't happen.</span></div>
+    <div class="role b"><span class="who">TRACK B — MONTHLY + MID-MONTH</span><b>KAM — Analysis &amp; AI owner</b><span>Akash Thakur / Akash Gandhi / Shikha (per brand). Downloads granular ads reports, keeps the brand's Claude folder current, builds the HTML dashboards and the clean Excel data file.</span></div>
+  </div>
+  <div class="journey">
+    <span class="jstep a"><span class="n">1</span>Panel downloads</span><span class="jarrow">→</span>
+    <span class="jstep a"><span class="n">2</span>Update DSR</span><span class="jarrow">→</span>
+    <span class="jstep a"><span class="n">3</span>Share with client</span><span class="jarrow">→</span>
+    <span class="jstep d"><span class="n">4</span>Rename + Drive upload</span><span class="jarrow">→</span>
+    <span class="jstep b"><span class="n">5</span>Granular ads download</span><span class="jarrow">→</span>
+    <span class="jstep d"><span class="n">6</span>Rename + Drive upload</span><span class="jarrow">→</span>
+    <span class="jstep b"><span class="n">7</span>Drive → Claude folder</span><span class="jarrow">→</span>
+    <span class="jstep b"><span class="n">8</span>Dashboard + clean Excel</span><span class="jarrow">→</span>
+    <span class="jstep q"><span class="n">9</span>QA → client</span>
+  </div>
+</section>
+
+<!-- REPORTS -->
+<section id="reports">
+  <h2><span class="sq"></span>The 5 reports in our system</h2>
+  <div class="tblwrap"><table>
+    <thead><tr><th>#</th><th>Report</th><th>In plain words</th><th>Owner</th><th>How often</th><th>Who sees it</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><b>DSR</b> (Daily Sales Report)</td><td>A live Copilot/Google Sheet showing day-by-day topline sales, ad-spend trends and stock status. No keyword or city detail. Stock = city/dark-store level on q-commerce platforms, PAN-India on Amazon.</td><td>Shikha</td><td>Weekly / biweekly</td><td>Client + internal</td></tr>
+      <tr><td>2</td><td>Raw reports &amp; working sheets</td><td>The files downloaded from each platform panel (daily sales, stock, spend) that feed the DSR.</td><td>Shikha</td><td>With every DSR cycle</td><td>Internal (Drive record)</td></tr>
+      <tr><td>3</td><td>Granular ads reports</td><td>Keyword-level ads exports needed for ads analysis &amp; optimisation. Downloaded separately on every platform <span class="hl">except Blinkit</span> — Blinkit's keyword detail already comes inside Shikha's DSR-level download.</td><td>KAM</td><td>Monthly + mid-month</td><td>Internal (Drive + AI input)</td></tr>
+      <tr><td>4</td><td>HTML dashboards</td><td>Claude-built, password-protected brand dashboards (ads + sales) created from the Drive data.</td><td>KAM</td><td>Monthly + mid-month</td><td>Client</td></tr>
+      <tr><td>5</td><td>Clean Excel data file</td><td>One Claude-maintained, segmented, analysis-ready Excel per brand — updated every time new data lands in the folder. Feeds every future analysis without re-work.</td><td>KAM</td><td>Every data drop</td><td>Internal</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- SWIMLANE -->
+<section id="flow">
+  <h2><span class="sq"></span>The flow, lane by lane</h2>
+  <p class="lede">Follow the step numbers 1 → 9. Left lane is Shikha's weekly rhythm, right lane is the KAM's monthly + mid-month rhythm, and Google Drive in the middle is where the two meet.</p>
+  <div class="lanes">
+
+    <div class="lane a">
+      <h3><span class="dot"></span>TRACK A — Shikha (DSR cycle)</h3>
+      <div class="cad">Every week / two weeks</div>
+      <div class="step"><span class="sn">1</span><b>Log in to every platform panel &amp; download</b><span>Daily-level sales, stock and spend for the brand. Stock comes city/dark-store level where the platform gives it; PAN-India on Amazon.</span><div class="chk">✓ Check: file opens · has rows · dates cover the period</div></div>
+      <div class="conn"></div>
+      <div class="step"><span class="sn">2</span><b>Update the DSR</b><span>Live Copilot/Google Sheet: topline daily sales + spend trends + stock status. No granular detail here — that's Track B's job.</span></div>
+      <div class="conn"></div>
+      <div class="step milestone"><span class="sn">3</span><b>Share the DSR with the client</b><span>Existing live link. This is a client touchpoint — numbers must already be sense-checked.</span></div>
+      <div class="conn"></div>
+      <div class="step"><span class="sn">4</span><b>Rename raws + working sheets → upload to Drive</b><span>Per the naming standard below. This record covers everything the DSR needs — daily sales + campaign-level spends for all platforms, including Blinkit's granular ads file.</span><span class="xlink to-d">⇢ INTO GOOGLE DRIVE</span></div>
+    </div>
+
+    <div class="lane d">
+      <h3><span class="dot"></span>GOOGLE DRIVE — brand links</h3>
+      <div class="cad">Always current · record keeping</div>
+      <div class="hub">📁 [Brand] shared folder<small>01 Sales · 02 Stock · 03 Spend · 04 Ads Granular · 05 Working Sheets — month subfolders YYYY-MM</small></div>
+      <div class="conn"></div>
+      <div class="step"><b>Receives from Shikha (step 4)</b><span>DSR-level raws + working sheets, every cycle.</span></div>
+      <div class="conn"></div>
+      <div class="step"><b>Receives from KAM (step 6)</b><span>Granular keyword-level ads reports, renamed.</span></div>
+      <div class="conn"></div>
+      <div class="step"><b>Serves the KAM (step 7)</b><span>KAM downloads whatever an analysis needs from here — never from memory, never from personal copies.</span><span class="xlink to-b">⇢ OUT TO KAM'S LAPTOP</span></div>
+      <div class="conn"></div>
+      <div class="step"><b>Rules of the store</b><span>New date = new file (never overwrite) · full month names · no "- Copy" files · close Excel before upload.</span></div>
+    </div>
+
+    <div class="lane b">
+      <h3><span class="dot"></span>TRACK B — KAM (Ads &amp; AI cycle)</h3>
+      <div class="cad">Monthly + mid-month (~day 14-15)</div>
+      <div class="step"><span class="sn">5</span><b>Download granular ads reports</b><span>Keyword-level exports from every platform panel <b>except Blinkit</b> (already on Drive from Shikha's step 4).</span></div>
+      <div class="conn"></div>
+      <div class="step"><span class="sn">6</span><b>Rename → upload to Drive</b><span>Record keeping first, analysis second. Same naming standard.</span><span class="xlink to-d">⇢ INTO GOOGLE DRIVE</span></div>
+      <div class="conn"></div>
+      <div class="step"><span class="sn">7</span><b>Pull needed sales + ads files from Drive to your laptop</b><span>Into the brand's Claude folder. Keep it current so any ad-hoc analysis runs immediately — no re-downloading, and the system stays trained on the brand's data.</span><span class="xlink to-a">⇠ FROM GOOGLE DRIVE</span></div>
+      <div class="conn"></div>
+      <div class="step"><span class="sn">8</span><b>Run Claude: HTML dashboard + clean Excel</b><span>Refresh the encrypted client dashboard, and update the clean Excel file with the 6 standard segmentations (below).</span></div>
+      <div class="conn"></div>
+      <div class="step milestone"><span class="sn">9</span><b>QA, then share</b><span>Run the 4 quality checks below. Only then does anything reach the client.</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MATRIX -->
+<section id="matrix">
+  <h2><span class="sq"></span>Download matrix — who pulls what, per platform</h2>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Platform</th><th>DSR bundle (Shikha, weekly/biweekly)</th><th>Stock level in DSR bundle</th><th>Granular ads bundle (KAM, monthly + mid-month)</th><th>Watch-outs</th></tr></thead>
+    <tbody>
+      <tr><td>Amazon</td><td>Daily sales + spend</td><td>PAN-India</td><td>SP / SB / SD keyword &amp; targeting reports per month</td><td>Excel exports open oddly (broken dimensions) · sales column name changes between export generations</td></tr>
+      <tr><td>Blinkit</td><td>Daily sales + spend <span class="hl">incl. keyword-level ads detail</span></td><td>City / dark-store</td><td><span class="hl">Not needed — comes with the DSR bundle</span></td><td>Brand Booster is a separate sheet — never double-count it · column names have migrated before</td></tr>
+      <tr><td>Zepto</td><td>Daily sales + spend</td><td>City / dark-store</td><td>Monthly SP / SB / SD placement reports (these are the spend source of truth)</td><td>Working-file pivots go stale vs raw · header rows can repeat mid-sheet · use full month names</td></tr>
+      <tr><td>Instamart</td><td>Daily sales + spend</td><td>City / dark-store</td><td>Day-level ads report (keyword/product/city columns inside)</td><td>Very large files — open read-only · platform can revise past months</td></tr>
+      <tr><td>BigBasket</td><td>Daily sales + spend</td><td>City level (where given)</td><td>Search Query Performance report</td><td>No query-level revenue exists — show "—", never 0 · outages have blocked exports</td></tr>
+      <tr><td>Flipkart <small>(where live)</small></td><td>Daily sales</td><td>—</td><td>Per brand</td><td>Month-end reporting delay — project the tail days, replace with actuals next cycle</td></tr>
+    </tbody>
+  </table></div>
+  <div class="notice"><b>Golden rule for both tracks:</b> check the file at download time — it opens, it has rows, and the dates cover the expected period. A broken file caught now costs 2 minutes; caught after the dashboard ships, it costs the client's trust.</div>
+</section>
+
+<!-- NAMING -->
+<section id="naming">
+  <h2><span class="sq"></span>Naming standard <span class="proposed">PROPOSED — CONFIRM</span></h2>
+  <p class="lede">Applied at the rename step in both tracks, so anyone can find any file without asking.</p>
+  <div class="gates">
+    <div class="gate"><b>Raw platform files</b><span><code>[Platform]_[Brand]_[DataType]_till_DDMonYYYY.xlsx</code><br>DataType = Sales / Stock / Spend / Ads-Granular<br>e.g. <code>Zepto_KariKari_Sales_till_24Aug2026.xlsx</code></span></div>
+    <div class="gate"><b>Working sheets</b><span><code>[Brand]_[Platform]_Working_DDMonYYYY.xlsx</code><br>One working file per platform per cycle — never overwrite last cycle's file.</span></div>
+    <div class="gate"><b>Drive folder tree (per brand)</b><span><code>[Brand]/ → 01 Sales · 02 Stock · 03 Spend · 04 Ads Granular · 05 Working Sheets</code>, each with month subfolders <code>YYYY-MM/</code>.</span></div>
+    <div class="gate"><b>Hygiene rules</b><span>New date = new file (never overwrite) · full month names ("June", never "Jun") · no "- Copy" files · close Excel before upload (~$ lock files break things).</span></div>
+  </div>
+</section>
+
+<!-- GANTT -->
+<section id="gantt">
+  <h2><span class="sq"></span>The two rhythms</h2>
+  <p class="lede">Track A repeats every week (or two weeks, per brand). Track B runs twice a month — mid-month and at month close.</p>
+
+  <h3 style="font-size:15px;margin:14px 0 8px">Rhythm 1 — Shikha's DSR week (repeats weekly / biweekly)</h3>
+  <div class="gantt">
+    <div class="ggrid" id="wgantt" style="grid-template-columns:250px repeat(7,minmax(48px,1fr))"></div>
+    <div class="legend"><span><i style="background:var(--teal)"></i>Download &amp; DSR</span><span><i style="background:var(--slate)"></i>Drive record keeping</span><span><i style="background:var(--coral);border-radius:2px"></i>◆ Client touchpoint</span></div>
+  </div>
+
+  <h3 style="font-size:15px;margin:22px 0 8px">Rhythm 2 — KAM's month (mid-month + month close)</h3>
+  <div class="gantt">
+    <div class="ggrid" id="mgantt" style="grid-template-columns:250px repeat(31,minmax(22px,1fr))"></div>
+    <div class="legend"><span><i style="background:var(--amber)"></i>Granular downloads + Drive</span><span><i style="background:var(--teal-dark)"></i>Claude build (dashboard + clean Excel)</span><span><i style="background:var(--violet)"></i>QA</span><span><i style="background:var(--coral);border-radius:2px"></i>◆ Client share</span></div>
+  </div>
+  <div class="notice"><b>Reading it as a PM:</b> D1-4 closes the previous month; D14-16 is the mid-month health check. If a mid-month cycle slips, the month-close one still guarantees the client never goes more than ~2 weeks without refreshed granular insight.</div>
+</section>
+
+<!-- CLEAN EXCEL -->
+<section id="excel">
+  <h2><span class="sq"></span>The clean Excel — 6 standard segmentations</h2>
+  <p class="lede">One segmented, analysis-ready Excel per brand, maintained by Claude, updated on every data drop. Same 6 columns for every KAM, every brand — so any analysis is comparable across the agency.</p>
+  <div class="gates">
+    <div class="gate"><b>1 · City Tier <small>(Sales)</small></b><span>Every city mapped to Tier 1 / 2 / 3 from the master <code>City_Tier_Mapping</code> file in Templates/. One mapping for the whole agency — never improvised per brand.</span></div>
+    <div class="gate"><b>2 · Flavor / Pack Size <small>(Sales)</small></b><span>Product attributes per the brand's own catalog (flavor, pack size, format — whatever that brand sells by).</span></div>
+    <div class="gate"><b>3 · Campaign Type <small>(Ads)</small></b><span>Every campaign bucketed into broad standardized types — Banner/Display · Keyword/Search-term · Remarketing · Category targeting · Product targeting/Contextual — the same buckets on every platform, whatever the platform calls them (matrix below).</span></div>
+    <div class="gate"><b>4 · BCG keyword type <small>(Ads)</small></b><span>Every keyword tagged <b>B</b>rand / <b>C</b>ompetitor / <b>G</b>eneric. This is the backbone of ads storytelling: brand terms defend, competitor terms attack, generic terms grow.</span></div>
+    <div class="gate"><b>5 · Negative-BCG flag <small>(Ads, separate column)</small></b><span>Terms not relevant to the product directly or indirectly.</span><span class="kamonly">KAM-ONLY — for optimisation reference · never shown on dashboards</span></div>
+    <div class="gate"><b>6 · Keyword framework ring <small>(Ads, separate column from BCG)</small></b><span>Which ring of the "search words to invest behind" framework the keyword sits in — see below. Investment priority flows from the core outward.</span></div>
+  </div>
+
+  <h3 style="font-size:15px;margin:26px 0 8px">The keyword framework — developing search words to invest behind</h3>
+  <div class="card fw">
+    <svg viewBox="0 0 560 400" role="img" aria-label="Concentric keyword framework" style="width:100%;height:auto">
+      <ellipse cx="280" cy="200" rx="265" ry="185" fill="#F2F3F4" stroke="#6B7178" stroke-width="1.8" stroke-dasharray="7 6"/>
+      <ellipse cx="215" cy="215" rx="185" ry="140" fill="#E9F0F6" stroke="#fff" stroke-width="2.5"/>
+      <ellipse cx="165" cy="230" rx="125" ry="100" fill="#FBF1DE" stroke="#fff" stroke-width="2.5"/>
+      <ellipse cx="128" cy="245" rx="72" ry="62" fill="#E4F7F6" stroke="#149B98" stroke-width="2"/>
+      <text x="128" y="238" text-anchor="middle" font-size="14" font-weight="700" fill="#020202">Core Search</text>
+      <text x="128" y="256" text-anchor="middle" font-size="14" font-weight="700" fill="#020202">Words</text>
+      <text x="238" y="200" text-anchor="middle" font-size="12.5" font-weight="700" fill="#3A3F45">Direct Competitors</text>
+      <text x="238" y="216" text-anchor="middle" font-size="12" fill="#3A3F45">Close Substitutes</text>
+      <text x="238" y="232" text-anchor="middle" font-size="12" fill="#3A3F45">Alternates</text>
+      <text x="345" y="140" text-anchor="middle" font-size="12.5" font-weight="700" fill="#3A3F45">Complements</text>
+      <text x="345" y="156" text-anchor="middle" font-size="11.5" fill="#3A3F45">(go with main product)</text>
+      <text x="465" y="180" text-anchor="middle" font-size="12.5" font-weight="700" fill="#3A3F45">Specialists</text>
+      <text x="465" y="196" text-anchor="middle" font-size="11.5" fill="#3A3F45">different but can</text>
+      <text x="465" y="211" text-anchor="middle" font-size="11.5" fill="#3A3F45">meet the need</text>
+      <line x1="128" y1="310" x2="470" y2="360" stroke="#149B98" stroke-width="2" marker-end="url(#arr)"/>
+      <defs><marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7" fill="none" stroke="#149B98" stroke-width="1.6"/></marker></defs>
+      <text x="290" y="386" text-anchor="middle" font-size="12" font-weight="700" fill="#149B98">Invest from the core outward — expand a ring only when the inner ring is efficient</text>
+    </svg>
+    <div class="exp">
+      <ul>
+        <li><b>Core Search Words</b> — what a shopper types when they want exactly this product. Fund these first, always.</li>
+        <li><b>Direct Competitors · Close Substitutes · Alternates</b> — shoppers about to buy something like ours. Second priority.</li>
+        <li><b>Complements</b> — products bought alongside ours; catches shoppers in the same basket mission.</li>
+        <li><b>Specialists</b> — different products that can meet the same need; the widest, most experimental ring.</li>
+      </ul>
+      <p style="font-size:12.5px;color:var(--ink-3);margin-top:10px">Framework ring and BCG are <b>two separate columns</b> on every keyword — BCG says whose term it is; the ring says how close it sits to our product.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:15px;margin:26px 0 8px">Campaign Type mapping matrix <span class="proposed">PROPOSED — CORRECT ME</span></h3>
+  <div class="tblwrap"><table style="min-width:820px">
+    <thead><tr><th>Standard type</th><th>Amazon</th><th>Blinkit</th><th>Zepto</th><th>Instamart</th><th>BigBasket</th></tr></thead>
+    <tbody>
+      <tr><td>Keyword / Search-term</td><td>SP keyword · SB (keyword-triggered)</td><td>Keyword Targeting</td><td>SP</td><td>Keyword bidding</td><td>Search ads</td></tr>
+      <tr><td>Product targeting / Contextual</td><td>SP product/ASIN targeting</td><td>Product Recommendation</td><td>—</td><td>Product listing</td><td>—</td></tr>
+      <tr><td>Category targeting</td><td>SP category</td><td>Category Targeting</td><td>Category-led</td><td>—</td><td>—</td></tr>
+      <tr><td>Banner / Display</td><td>—</td><td>Brand Booster</td><td>SB banner</td><td>—</td><td>Banner (CPM)</td></tr>
+      <tr><td>Remarketing / Audience display</td><td>SD (audiences)</td><td>—</td><td>SD / PDA</td><td>—</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- GATES -->
+<section id="gates">
+  <h2><span class="sq"></span>Quality checks — before anything reaches the client</h2>
+  <div class="gates">
+    <div class="gate"><b>1 · Totals match</b><span>Dashboard and clean-file totals reconcile with the raw files and the DSR. Every difference is explained (a known basis difference) or escalated — never ignored.</span></div>
+    <div class="gate"><b>2 · Spot re-check</b><span>Re-calculate a few headline numbers straight from the raw files and compare. If a total was computed once and reused everywhere, it's untested until you do this.</span></div>
+    <div class="gate"><b>3 · Looks right everywhere</b><span>Click every tab and filter. No blanks, no "NaN", no placeholder text, no chart that quietly failed to draw.</span></div>
+    <div class="gate"><b>4 · Locked &amp; live</b><span>Client dashboard password works and wrong passwords are rejected. If hosted online, open the LIVE page and check it — an upload that "succeeded" is not proof the page updated.</span></div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<section id="glossary">
+  <h2><span class="sq"></span>Glossary — for anyone new</h2>
+  <div class="glo">
+    <div><b>DSR</b> — Daily Sales Report; our live topline sheet for the client.</div>
+    <div><b>GMV</b> — Gross Merchandise Value; sales value at MRP.</div>
+    <div><b>Ad-Spend / Ad-Revenue</b> — money spent on ads / sales directly from ads.</div>
+    <div><b>Ad-ROAS</b> — Ad-Revenue ÷ Ad-Spend. How many ₹ of ad sales per ₹1 spent.</div>
+    <div><b>bROAS</b> — Blended ROAS: TOTAL sales ÷ Ad-Spend (organic included).</div>
+    <div><b>Keyword</b> — the words a shopper types in search; we bid on these.</div>
+    <div><b>Campaign</b> — a group of ads with one budget and goal.</div>
+    <div><b>SP / SB / SD</b> — Sponsored Products / Brands / Display: the main ad formats.</div>
+    <div><b>Remarketing</b> — ads shown again to people who saw or bought before.</div>
+    <div><b>BCG</b> — Brand / Competitor / Generic keyword tagging.</div>
+    <div><b>Negative keyword</b> — a term we don't want our ads to show for.</div>
+    <div><b>Dark store</b> — a q-commerce mini-warehouse that serves one area.</div>
+    <div><b>City Tier</b> — Tier 1 metros, Tier 2 large cities, Tier 3 the rest — from the master mapping.</div>
+    <div><b>Panel</b> — a platform's seller/advertiser login (Seller Central, Blinkit Ads, etc.).</div>
+    <div><b>KAM</b> — Key Account Manager; owns a brand end-to-end.</div>
+  </div>
+</section>
+
+</div>
+
+<footer><div class="wrap">
+  <span><b>NorthSide SOPs</b> · Data Operations — Consolidated · Internal use only</span>
+  <span>SAMPLE v2 · 24.08.2026 · Source of truth: Process Maps/PROCESS_MAP_Data_Operations_SAMPLE_v2.md</span>
+</div></footer>
+
+<script>
+function bar(cls,rl,rr){return '<div class="gbar '+cls+'" style="border-radius:'+rl+' '+rr+' '+rr+' '+rl+'"></div>';}
+function renderGantt(el,days,firstHead,rows){
+  var h='<div class="ghead" style="text-align:left;padding-left:0;font-size:11.5px;color:var(--ink)">'+firstHead+'</div>';
+  for(var d=1;d<=days;d++){h+='<div class="ghead">'+(typeof days==='number'&&days===7?['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][d-1]:d)+'</div>';}
+  rows.forEach(function(r){
+    h+='<div class="glabel">'+r.label+(r.sub?'<small>'+r.sub+'</small>':'')+'</div>';
+    for(var d=1;d<=days;d++){
+      var cell='';
+      (r.bars||[]).forEach(function(b){
+        if(d>=b[0]&&d<=b[1]){
+          if(r.ms){cell='<div class="gms"></div>';}
+          else{cell=bar(r.cls,(d===b[0]?'6px':'0'),(d===b[1]?'6px':'0'));}
+        }
+      });
+      h+='<div class="gcell">'+cell+'</div>';
+    }
+  });
+  el.innerHTML=h;
+}
+renderGantt(document.getElementById('wgantt'),7,'Step · repeats each cycle',[
+  {label:'1 · Panel logins + downloads (sales, stock, spend)',sub:'Shikha',cls:'t',bars:[[1,1]]},
+  {label:'2 · Update the live DSR',sub:'Shikha',cls:'t',bars:[[1,2]]},
+  {label:'3 · Share DSR with client',sub:'Shikha · client touchpoint',ms:true,bars:[[2,2]]},
+  {label:'4 · Rename + upload raws to Google Drive',sub:'Shikha',cls:'s',bars:[[2,3]]}
+]);
+renderGantt(document.getElementById('mgantt'),31,'Step · day of month',[
+  {label:'Month-close cycle — granular ads download + Drive upload',sub:'KAM · previous month',cls:'a',bars:[[1,2]]},
+  {label:'Month-close — Drive → laptop, Claude build (dashboard + clean Excel)',sub:'KAM',cls:'td',bars:[[2,3]]},
+  {label:'Month-close — QA (4 checks)',sub:'KAM',cls:'v',bars:[[3,4]]},
+  {label:'Month-close — client share',sub:'KAM · client touchpoint',ms:true,bars:[[4,4]]},
+  {label:'Mid-month cycle — granular ads + Drive',sub:'KAM',cls:'a',bars:[[14,14]]},
+  {label:'Mid-month — Claude build + QA',sub:'KAM',cls:'td',bars:[[15,16]]},
+  {label:'Mid-month — client share',sub:'KAM · client touchpoint',ms:true,bars:[[16,16]]},
+  {label:'Clean Excel updated on every data drop',sub:'KAM via Claude · continuous',cls:'k',bars:[[1,4],[14,16]]}
+]);
+</script>
+</body>
+</html>
