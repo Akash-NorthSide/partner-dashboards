@@ -111,7 +111,22 @@ tr.tp3 td:first-child { box-shadow:inset 4px 0 0 rgba(28,191,187,.40); }
 /* Responsive */
 @media (max-width:1023px) { .kpi-grid { grid-template-columns:repeat(2,1fr); } .charts-row { grid-template-columns:1fr; } }
 @media (max-width:767px) { .kpi-grid { grid-template-columns:1fr; } .header { flex-direction:column; text-align:center; } .tabs { overflow-x:auto; } .filter-bar { flex-direction:column; } }
-</style>
+
+        /* ── cross-dashboard nav (added 27 Aug 2026) ── */
+        .ns-nav { margin-left:auto; display:flex; gap:8px; align-items:center; }
+        .ns-nav a, .ns-nav button { font-family:inherit; font-size:12px; font-weight:600; padding:7px 12px; border-radius:6px;
+            border:1px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.08); color:#fff; text-decoration:none; cursor:pointer; transition:all .2s; white-space:nowrap; }
+        .ns-nav a:hover { background:#1CBFBB; border-color:#1CBFBB; }
+        .ns-nav button:hover { background:#E67E22; border-color:#E67E22; }
+        @media (max-width:767px){ .ns-nav { margin:10px auto 0; } }
+    
+        /* ── plain-language helper layer (27 Aug 2026) ── */
+        .ns-help { background:#F1FBFB; border:1px solid #CDEDEC; border-left:4px solid #1CBFBB; border-radius:6px;
+                   padding:10px 14px; margin:14px 0 4px; font-size:13px; color:#0b4f4e; line-height:1.55; }
+        .ns-help b { color:#0b4f4e; }
+        .ns-help .ns-tabline { display:block; margin-top:6px; color:#2b6b6a; }
+        th[data-gloss] { border-bottom:1px dotted #9aa0a6 !important; cursor:help; }
+    </style>
 </head>
 <body>
 
@@ -135,6 +150,7 @@ tr.tp3 td:first-child { box-shadow:inset 4px 0 0 rgba(28,191,187,.40); }
             <h1>Elevens Coffee — Ads Performance Dashboard</h1>
             <div class="subtitle">Amazon India | Jul 2025 – Aug 2026 · Jul actual · Aug MTD 1–26 · Source: Amazon Ads reports | Confidential</div>
         </div>
+        <div class="ns-nav"><a href="https://akash-northside.github.io/partner-dashboards/Elevens%20Coffee/Elevens_Coffee_Sales_Dashboard.html" title="Open the Sales dashboard">Sales Dashboard ↗</a><button type="button" onclick="nsLock()" title="Lock — require the password again">🔒 Lock</button></div>
         <div style="margin-left:auto">
             <img src="data:image/png;base64,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" alt="Elevens Coffee" style="height:45px;">
         </div>
@@ -273,7 +289,7 @@ tr.tp3 td:first-child { box-shadow:inset 4px 0 0 rgba(28,191,187,.40); }
             <div style="font-size:13px; line-height:1.8;">
                 <ol>
                     <li><strong>Data Source:</strong> Amazon Ads console export — Sponsored Products, Sponsored Display, and Sponsored Brands targeting reports.</li>
-                    <li><strong>Data Period:</strong> Jun 17, 2025 – Mar 31, 2026 (~10 months). SP and SD data starts from Jun 2025; SB starts from Sep 2025.</li>
+                    <li><strong>Data Period:</strong> Jun 17, 2025 – Aug 26, 2026 (~14 months). SP and SD data starts from Jun 2025; SB starts from Sep 2025. Aug 2026 = 1–26; ad sales for recent days keep filling under the 14-day attribution window.</li>
                     <li><strong>Attribution Window:</strong> All ad sales and orders use Amazon's 14-day attribution model. "Ad Sales (14d)" = revenue attributed to ads within 14 days of a customer interacting with the ad.</li>
                     <li><strong>Period Labels:</strong> Original data used custom period labels ("Learning period", "1 month", etc.) which have been mapped to calendar months for consistency.</li>
                     <li><strong>Ad ROAS Calculation:</strong> Ad ROAS = Ad Sales (14d) / Ad Spend (weighted, not averaged across rows). ACOS = Ad Spend / Ad Sales (14d) x 100.</li>
@@ -315,7 +331,7 @@ tr.tp3 td:first-child { box-shadow:inset 4px 0 0 rgba(28,191,187,.40); }
     </div>
 
     <footer style="text-align:center; padding:20px; color:var(--ns-grey); font-size:12px; border-top:1px solid var(--ns-grey-warm); margin-top:10px;">
-        Prepared by NorthSide | 07.04.2026 | Confidential
+        Prepared by NorthSide | 27.08.2026 | Confidential
     </footer>
 </div>
 
@@ -360,6 +376,8 @@ async function checkPassword() {
 
     try {
         D = await decryptData(pw);
+        if (!D) throw new Error('Incorrect password');
+        nsSaveUnlock(pw);
         // Success — render dashboard, wipe password from DOM
         document.getElementById('passwordOverlay').style.display = 'none';
         document.getElementById('dashboardContent').style.display = 'block';
@@ -393,7 +411,7 @@ function showUnauthorized(msg) {
     D = null;
 }
 
-// ── NO auto-unlock: No sessionStorage, no localStorage, no URL hash ──
+// ── Unlock policy: passphrase cached in sessionStorage ONLY (brand-namespaced, 2h TTL, cleared on tab close). No localStorage, no URL hash. ──
 // Fresh password required on every page load. Nothing is persisted.
 
 // ── Anti-scraping & anti-inspection defenses ──────────────
@@ -798,16 +816,24 @@ function renderAll() {
 <script>
 function _addProj(){ try{
   if(typeof charts==='undefined'||!charts) return;
-  var F=31/22; var VOL=/revenue|sales|spend|orders|impress|clicks|units/i, RATIO=/roas|ctr|cpc|acos|cpm|aov|%/i;
+  /* Projection method (27 Aug 2026): sales-side = BAU-taper full-month est. ₹6.93L ÷ ₹6.125L actual (1-26);
+     spend-side = capped at the ₹5.5L monthly budget ÷ ₹5.134L spent. Matches the September plan deck. */
+  var F_SALES=1.131, F_SPEND=1.071;
+  var VOL=/revenue|sales|spend|orders|impress|clicks|units/i, RATIO=/roas|ctr|cpc|acos|cpm|aov|%/i, SPD=/spend|impress|clicks/i;
   Object.keys(charts).forEach(function(k){ var ch=charts[k]; if(!ch||!ch.data||!ch.data.labels||!ch.data.datasets) return;
     var labs=ch.data.labels, li=labs.length-1; if(li<1) return;
-    if(String(labs[li]).indexOf("Jul'26")<0) return; if(ch.__projAdded) return;
+    if(String(labs[li]).indexOf("Aug'26")<0) return; if(ch.__projAdded) return;
     var add=[];
     ch.data.datasets.forEach(function(ds){ if(ds.__proj) return; var lb=ds.label||''; if(!VOL.test(lb)||RATIO.test(lb)) return;
       var arr=ds.data; if(!Array.isArray(arr)||typeof arr[li]!=='number') return;
+      var F = SPD.test(lb) ? F_SPEND : F_SALES;
       var pd=arr.map(function(){return null;}); pd[li]=Math.round(arr[li]*F);
+      if(typeof arr[li-1]==='number') pd[li-1]=arr[li-1];            /* anchor so the dashes span Jul -> Aug */
+      var pr=arr.map(function(){return 0;}); pr[li]=5;
       var col=ds.borderColor||ds.backgroundColor||'#f59e0b';
-      var p={label:lb+' (Jul proj·31d)',data:pd,__proj:true,type:'line',borderColor:col,borderDash:[5,4],borderWidth:2,pointRadius:5,pointStyle:'triangle',backgroundColor:'transparent',fill:false,order:-1};
+      var p={label:lb+' \u2014 Aug projected (full month)',data:pd,__proj:true,type:'line',borderColor:col,borderDash:[6,4],borderWidth:2,
+             pointRadius:pr,pointHoverRadius:6,pointStyle:'circle',pointBackgroundColor:'#fff',pointBorderColor:col,pointBorderWidth:2,
+             backgroundColor:'transparent',fill:false,order:-1,spanGaps:true,tension:0};
       if(ds.yAxisID)p.yAxisID=ds.yAxisID; add.push(p); });
     add.forEach(function(p){ch.data.datasets.push(p);}); if(add.length){ch.__projAdded=true; ch.update();}
   });
@@ -840,5 +866,101 @@ window.highlightTop=function(){try{
   }
 }catch(e){console.warn('highlightTop',e);}};
 if(typeof renderAll==='function'){var _oRA=renderAll; renderAll=function(){_oRA.apply(this,arguments); _revMonthTables(); _addProj(); highlightTop();};}
-</script></body>
+</script>
+<script>
+/* ── Session unlock: brand-namespaced, sessionStorage only, 2h TTL ──
+   Encryption is UNCHANGED (AES-256-GCM + PBKDF2 100k; payload stays encrypted at rest,
+   decrypted to memory only). We cache ONLY the passphrase for this browser-tab session,
+   under a key scoped to this brand, so other brands' dashboards are unaffected.
+   Never written to localStorage, the URL, or any request. */
+var NS_KEY='ns_unlock_elevens_v1', NS_TTL=2*60*60*1000;
+function nsSaveUnlock(pw){ try{ sessionStorage.setItem(NS_KEY, JSON.stringify({p:pw, exp:Date.now()+NS_TTL})); }catch(e){} }
+function nsReadUnlock(){ try{ var r=JSON.parse(sessionStorage.getItem(NS_KEY)||'null');
+    if(!r||!r.p) return null; if(Date.now()>r.exp){ sessionStorage.removeItem(NS_KEY); return null; } return r.p; }catch(e){ return null; } }
+function nsLock(){ try{ sessionStorage.removeItem(NS_KEY); }catch(e){} location.reload(); }
+async function nsTryAutoUnlock(){
+  var pw=nsReadUnlock(); if(!pw) return;
+  try{
+    var d=await decryptData(pw);
+    if(!d){ try{sessionStorage.removeItem(NS_KEY);}catch(e){} return; }
+    D=d;
+    document.getElementById('passwordOverlay').style.display='none';
+    document.getElementById('dashboardContent').style.display='block';
+    initDashboard();
+  }catch(e){ try{ sessionStorage.removeItem(NS_KEY); }catch(_){} }
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', nsTryAutoUnlock); else nsTryAutoUnlock();
+</script>
+<script>window.NS_HELP_INTRO="<b>How to read this dashboard:</b> this shows <b>advertising</b> only \u2014 what we spent and what Amazon credits back to those ads (within 14 days of a click). Sales here are an <i>estimate</i>, not billed revenue \u2014 the Sales dashboard holds the invoiced numbers. <b>Hover any underlined column heading</b> for a plain-English definition. <b>Dashed lines</b> = projected full month for August.";window.NS_TABHELP={
+ summary:'All advertising combined \u2014 what we spent, what came back, and how the three ad formats compare.',
+ sp:'Sponsored Products \u2014 ads that appear inside search results for a single product. Usually the largest share of spend.',
+ sd:'Sponsored Display \u2014 ads that follow shoppers around Amazon and re-target people who already viewed or bought.',
+ sb:'Sponsored Brands \u2014 the banner at the top of search results. Good for visibility, slower to pay back directly.',
+ keywords:'The individual search terms and audiences we paid for \u2014 the most detailed view of what is and is not working.',
+ campaigns:'Every live campaign, largest spend first, plus the glossary and data caveats.'};</script>
+<script>
+/* ── Plain-language helper layer: tooltips on jargon + a per-tab "what am I looking at" line ── */
+var NS_GLOSS={
+ 'bROAS':'Blended ROAS = ALL revenue \u00f7 ad spend. 1.20x means every \u20b91 spent on ads came with \u20b91.20 of total sales (ads + organic). Above 1.0x is the break-even line.',
+ 'Ad ROAS':'Ad ROAS = only the sales Amazon credits to an ad \u00f7 ad spend, counted within 14 days of a click. Always lower than bROAS because it ignores organic sales.',
+ 'Ad Sales (14d)':'Sales Amazon attributes to an ad click within 14 days. It is an estimate, not billed revenue.',
+ 'Ad Spend':'What we actually paid Amazon for advertising in the period.',
+ 'ACOS':'Advertising Cost of Sale = ad spend \u00f7 ad sales, shown as a %. The mirror image of Ad ROAS: lower is better (50% ACOS = 2.0x ROAS).',
+ 'CTR':'Click-Through Rate = clicks \u00f7 times the ad was shown. Measures how appealing the ad looks.',
+ 'CPC':'Cost Per Click = what we pay on average each time someone clicks the ad.',
+ 'CPM':'Cost per 1,000 times the ad is shown. Used for awareness-style placements.',
+ 'Impressions':'How many times the ad appeared on screen (not clicks).',
+ 'Orders':'Number of separate customer orders (one order can contain several units).',
+ 'Qty':'Units sold \u2014 number of individual items, which is usually higher than orders.',
+ 'AOV':'Average Order Value = revenue \u00f7 orders. How much a typical customer spends in one go.',
+ 'CAC':'Customer Acquisition Cost = ad spend \u00f7 orders. What it costs in ads to generate one order.',
+ 'NTB':'New-To-Brand \u2014 buyers who had not purchased Elevens on Amazon in the previous 12 months.',
+ 'NTB Orders':'Orders from customers new to the brand in the last 12 months.',
+ '% Rev':'This row\u2019s share of total revenue.',
+ 'MoM %':'Month-on-Month change versus the previous month.',
+ 'Spend Share':'This row\u2019s share of total ad spend.',
+ 'Spend %':'This row\u2019s share of total ad spend.',
+ 'Ad Spend % Rev':'Ad spend as a percentage of revenue \u2014 how much of every sales rupee went back into ads.',
+ 'Capsule Type':'The product family / collection (Speciality, Variety Pack, Flavoured, and so on).',
+ 'Targeting Type':'How the ad decided who to show to \u2014 e.g. our own brand terms, competitor products, or broad category searches.',
+ 'Match':'How closely the shopper\u2019s search had to match our keyword (exact, phrase or broad).',
+ 'Product Type':'Whether the ad promoted pods, the machine, or a bundle of both.',
+ 'Discount':'Total promotional value given away (coupons, deals, Subscribe & Save).',
+ 'Revenue':'Invoice value billed to customers, after promotions and excluding cancelled orders.'
+};
+var NS_TABHELP=window.NS_TABHELP||{};
+function nsAnnotate(){
+  try{
+    document.querySelectorAll('th').forEach(function(th){
+      if(th.getAttribute('data-gloss')) return;
+      var t=(th.textContent||'').replace(/\s+/g,' ').trim();
+      var d=NS_GLOSS[t];
+      if(!d){ for(var k in NS_GLOSS){ if(t===k+' '||t.indexOf(k)===0&&t.length<=k.length+4){ d=NS_GLOSS[k]; break; } } }
+      if(d){ th.setAttribute('data-gloss','1'); th.title=d; }
+    });
+  }catch(e){}
+}
+function nsTabLine(id){
+  try{
+    var el=document.getElementById('nsTabLine'); if(!el) return;
+    el.innerHTML = NS_TABHELP[id] ? ('<b>This tab:</b> '+NS_TABHELP[id]) : '';
+  }catch(e){}
+}
+function nsInitHelp(){
+  try{
+    var tabs=document.querySelector('.tabs'); if(!tabs||document.getElementById('nsHelpBar')) return;
+    var d=document.createElement('div'); d.className='ns-help'; d.id='nsHelpBar';
+    d.innerHTML=window.NS_HELP_INTRO+'<span class="ns-tabline" id="nsTabLine"></span>';
+    tabs.parentNode.insertBefore(d, tabs.nextSibling);
+    var act=document.querySelector('.tab-content.active'); nsTabLine(act?act.id:'');
+    if(typeof switchTab==='function' && !switchTab.__wrapped){
+      var o=switchTab; window.switchTab=function(id,btn){ o.apply(this,arguments); nsTabLine(id); setTimeout(nsAnnotate,60); };
+      window.switchTab.__wrapped=true;
+    }
+    setInterval(nsAnnotate, 1200); nsAnnotate();
+  }catch(e){}
+}
+document.addEventListener('DOMContentLoaded', function(){ setTimeout(nsInitHelp, 300); });
+</script>
+</body>
 </html>
