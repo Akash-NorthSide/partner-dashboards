@@ -353,7 +353,7 @@ function renderAvailability(periods){
   html += `</tbody></table></div>`;
 
   // city table
-  let th2 = periods.map(p=>`<th${p.type==='mtd'?' class="mtd"':''} colspan="2">${p.label}<div style="font-weight:500;font-size:.62rem;opacity:.75;letter-spacing:0">${p.sub}</div></th>`).join('');
+  let th2 = periods.map(p=>`<th${p.type==='mtd'?' class="mtd"':''} colspan="3">${p.label}<div style="font-weight:500;font-size:.62rem;opacity:.75;letter-spacing:0">${p.sub}</div></th>`).join('');
   let subth2 = periods.map(()=>`<th style="text-align:right">Listing %</th><th style="text-align:right">OSA %</th><th style="text-align:right">Stores</th>`).join('');
   html += `<div class="cons-card"><h2><span class="icon">🏙️</span>City-Level Availability — Top 15 by Sales Contribution</h2>
   <div class="cons-note">Ranked by ${last.label} OSA %, highest first</div>
@@ -465,10 +465,15 @@ function renderRca(periods){
     html += `</tbody></table>
     <div class="cons-note" style="margin-top:14px">City view (Sep 1\u201313) \u2014 where the market is big and where Kari-Kari's value share stands:</div>
     <table class="cons-table"><thead><tr><th>City</th><th style="text-align:right">Category Size</th><th style="text-align:right">Kari-Kari Sales</th><th style="text-align:right">Value Share</th><th>Read</th></tr></thead><tbody>`;
-    sep.cities.forEach(c=>{
+    const namedCities = sep.cities.filter(c=>c.city!=='Others');
+    const othersRow = sep.cities.find(c=>c.city==='Others');
+    namedCities.forEach(c=>{
       const read = c.share!=null && avgShare!=null ? (c.share>=avgShare*1.5?'<span class="win">Stronghold</span>':(c.share<avgShare*0.7?'<span class="warn">Big headroom</span>':'On par')) : '\u2014';
       html += `<tr><td>${c.city}</td><td style="text-align:right">${fmtMoney(c.cat)}</td><td style="text-align:right">${fmtMoney(c.off)}</td><td style="text-align:right">${fmtPct(c.share,3)}</td><td>${read}</td></tr>`;
     });
+    if(othersRow){
+      html += `<tr><td>Others (all remaining cities)</td><td style="text-align:right">${fmtMoney(othersRow.cat)}</td><td style="text-align:right">${fmtMoney(othersRow.off)}</td><td style="text-align:right">${fmtPct(othersRow.share,3)}</td><td>\u2014</td></tr>`;
+    }
     html += `</tbody></table>
     <div class="cons-note" style="margin-top:10px">Value share is fair to compare across part-months \u2014 sales and category size shrink together, so the ratio stays honest.</div></div>`;
   }
@@ -504,7 +509,7 @@ function renderRca(periods){
   html += `</tbody></table></div>`;
 
   // city table
-  let th2 = periods.map(p=>`<th${p.type==='mtd'?' class="mtd"':''} colspan="3">${p.label}<div style="font-weight:500;font-size:.62rem;opacity:.75;letter-spacing:0">${p.sub}</div></th>`).join('');
+  let th2 = periods.map(p=>`<th${p.type==='mtd'?' class="mtd"':''} colspan="2">${p.label}<div style="font-weight:500;font-size:.62rem;opacity:.75;letter-spacing:0">${p.sub}</div></th>`).join('');
   let subth2 = periods.map(()=>`<th style="text-align:right">Organic SOV</th><th style="text-align:right">Ad SOV</th>`).join('');
   html += `<div class="cons-card"><h2><span class="icon">🏙️</span>City-Level RCA</h2>
   <div class="cons-note">Ranked by ${last.label} units sold</div>
